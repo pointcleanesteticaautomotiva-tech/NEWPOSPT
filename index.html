@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="POINT.OS">
     
-    <title>POINT.OS | SUPREME V7.5</title>
+    <title>POINT.OS | SUPREME V7.0</title>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -17,49 +17,26 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         :root { --brand: #f97316; --bg: #030303; --surface: #0a0a0a; --border: #1a1a1a; --zinc-400: #a1a1aa; --zinc-500: #71717a; --zinc-800: #27272a; --zinc-900: #18181b; }
-        
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body { background-color: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: #e5e7eb; display: flex; overflow-x: hidden; min-height: 100vh; }
-        
-        /* SIDEBAR COMPLETA */
         .sidebar { width: 260px; background: #000; border-right: 1px solid var(--border); height: 100vh; position: fixed; z-index: 50; padding: 40px 0; }
         .viewport { margin-left: 260px; width: 100%; min-height: 100vh; padding: 40px; }
         .nav-item { display: flex; align-items: center; padding: 14px 20px; color: #52525b; border-radius: 12px; margin: 4px 16px; cursor: pointer; transition: 0.2s; font-size: 14px; font-weight: 600; }
         .nav-item.active { background: #111; color: var(--brand); }
         .nav-item i { margin-right: 12px; font-size: 18px; }
-
-        /* CARDS E GRIDS */
         .glass-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 24px; margin-bottom: 20px; }
-        .grid { display: grid; gap: 20px; }
-        .flex { display: flex; }
-        .justify-between { justify-content: space-between; }
-        .hidden { display: none !important; }
-
-        /* CALENDÁRIO SELECTOR */
-        .cal-selector { display: flex; background: #111; border: 1px solid #1a1a1a; padding: 4px; border-radius: 12px; margin-bottom: 15px; }
-        .cal-btn { flex: 1; padding: 8px; border-radius: 8px; font-size: 10px; font-weight: 900; text-transform: uppercase; text-align: center; cursor: pointer; color: #52525b; transition: 0.3s; }
-        .cal-btn.active { background: var(--brand); color: white; }
-
-        /* ESTADOS COLORIDOS */
         .status-badge { padding: 6px 12px; border-radius: 99px; font-size: 9px; font-weight: 900; text-transform: uppercase; border: 1px solid transparent; cursor: pointer; display: inline-block; }
         .status-pendente { background: #422006; color: #fbbf24; border-color: #78350f; }
         .status-orcamentada { background: #064e3b; color: #34d399; border-color: #065f46; }
         .status-aceite { background: #1e3a8a; color: #60a5fa; border-color: #1e40af; }
         .status-encomendada { background: #4c1d95; color: #a78bfa; border-color: #5b21b6; }
         .status-concluido { background: #14532d; color: #4ade80; border-color: #166534; }
-
-        /* BOTÕES */
         .btn-orange { background: var(--brand); color: white; border: none; padding: 12px 24px; border-radius: 16px; font-weight: 800; font-size: 11px; text-transform: uppercase; cursor: pointer; }
         .btn-zinc { background: var(--zinc-900); color: white; border: 1px solid var(--zinc-800); padding: 12px 24px; border-radius: 16px; font-weight: 800; font-size: 11px; text-transform: uppercase; cursor: pointer; }
-        
-        #calendar-main { background: #000; border-radius: 20px; padding: 10px; min-height: 550px; border: 1px solid var(--border); }
+        .grid { display: grid; gap: 20px; }
+        .hidden { display: none !important; }
+        input, textarea { background: #000; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 12px; width: 100%; }
         .blur-value { filter: blur(12px) !important; }
-
-        input, textarea { background: #000; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 12px; width: 100%; outline: none; }
-        
-        /* PEÇAS STATS DASH */
-        .peca-stat-card { background: #0c0c0c; padding: 15px; border-radius: 16px; border: 1px solid #1a1a1a; text-align: center; }
-        .peca-stat-card span { display: block; font-size: 20px; font-weight: 900; margin-top: 5px; color: var(--brand); }
     </style>
 </head>
 <body>
@@ -82,199 +59,93 @@
 
     <main class="viewport">
         <section id="tab-dash" class="tab-view">
-            <header class="flex justify-between" style="margin-bottom: 30px;">
+            <header class="grid" style="grid-template-columns: 1fr auto; margin-bottom: 30px; align-items: center;">
                 <h2 style="font-size: 28px; font-weight: 900; font-style: italic;">OPERACIONAL</h2>
-                <div class="flex" style="gap: 12px;">
+                <div style="display: flex; gap: 10px;">
                     <button onclick="App.addBooking('DETAILING')" class="btn-orange">+ Detailing</button>
                     <button onclick="App.addBooking('MECANICA')" class="btn-zinc">+ Mecânica</button>
                 </div>
             </header>
             
             <div class="grid" style="grid-template-columns: 2.2fr 1fr;">
-                <div class="glass-card">
-                    <div class="cal-selector">
-                        <div id="btn-cal-det" onclick="App.switchCal('DETAILING')" class="cal-btn active">Detailing</div>
-                        <div id="btn-cal-mec" onclick="App.switchCal('MECANICA')" class="cal-btn">Mecânica</div>
-                    </div>
-                    <div id="calendar-main"></div>
-                </div>
-                
+                <div class="glass-card"><div id="calendar-main"></div></div>
                 <div class="grid">
                     <div class="glass-card" style="text-align: center;">
-                        <p style="font-size: 10px; color: var(--brand); font-weight: 900;">SALDO GLOBAL</p>
+                        <p style="font-size: 10px; color: var(--brand); font-weight: 900;">SALDO ATUAL</p>
                         <h2 id="mini-saldo" style="font-size: 32px; font-weight: 900;">€ 0.00</h2>
                     </div>
-
                     <div class="glass-card">
-                        <h3 style="font-size: 10px; color: var(--zinc-500); margin-bottom: 12px; text-transform: uppercase;">Task.OS / Notas</h3>
-                        <div class="flex" style="gap: 8px; margin-bottom: 15px;">
-                            <input type="text" id="note-input" placeholder="Anotar...">
+                        <h3 style="font-size: 10px; color: var(--zinc-500); margin-bottom: 12px; text-transform: uppercase;">Task.OS</h3>
+                        <div style="display:flex; gap: 8px; margin-bottom: 15px;">
+                            <input type="text" id="note-input" placeholder="Nova nota...">
                             <button onclick="App.addNote()" class="btn-orange">+</button>
                         </div>
-                        <div id="notes-list" style="max-height: 200px; overflow-y: auto;"></div>
-                    </div>
-
-                    <div class="glass-card">
-                        <h3 style="font-size: 10px; color: var(--zinc-500); margin-bottom: 15px; text-transform: uppercase;">Peças em Fluxo</h3>
-                        <div id="dash-pecas-grid" class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px;"></div>
+                        <div id="notes-list"></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="tab-crm" class="tab-view hidden">
-            <div class="flex justify-between" style="margin-bottom:30px;">
-                <h2>CRM CLIENTES</h2>
-                <button onclick="App.addClient()" class="btn-orange">+ Novo Cliente</button>
-            </div>
-            <div id="crm-grid" class="grid" style="grid-template-columns: repeat(3, 1fr);"></div>
-        </section>
-
-        <section id="tab-pecas" class="tab-view hidden">
-            <div class="flex justify-between" style="margin-bottom:30px;">
-                <h2>GESTÃO DE ENCOMENDAS</h2>
-                <button onclick="App.addPeca()" class="btn-orange">+ Nova Peça</button>
-            </div>
-            <div class="glass-card" style="padding: 0;">
-                <table>
-                    <thead><tr><th style="padding:20px;">Artigo / Viatura</th><th style="padding:20px;">Estado</th><th style="padding:20px; text-align:right;">Ações</th></tr></thead>
-                    <tbody id="pecas-list"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <section id="tab-fin" class="tab-view hidden">
-            <div class="grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 30px;">
-                <div class="glass-card"><h3>Receitas</h3><h2 id="fin-rec" style="color: #22c55e;">€ 0.00</h2></div>
-                <div class="glass-card"><h3>Gastos</h3><h2 id="fin-gas" style="color: #ef4444;">€ 0.00</h2></div>
-                <button onclick="App.manualTrans('E')" class="btn-zinc" style="color:#22c55e">+ Entrada</button>
-                <button onclick="App.manualTrans('S')" class="btn-zinc" style="color:#ef4444">- Saída</button>
-            </div>
-            <div class="grid" style="grid-template-columns: 2fr 1fr;">
-                <div class="glass-card"><canvas id="fin-chart" style="height:350px;"></canvas></div>
-                <div class="glass-card" style="max-height:400px; overflow-y:auto;">
-                    <h3>Histórico</h3>
-                    <div id="fin-history" style="font-size:12px; margin-top:15px;"></div>
-                </div>
-            </div>
-        </section>
-
-        <section id="tab-oficina" class="tab-view hidden">
-            <h2>NOTAS TÉCNICAS E OFICINA</h2>
-            <textarea id="oficina-memo" oninput="App.saveMemo()" style="width:100%; height:600px; background:#000; color:white; border:1px solid #1a1a1a; padding:30px; border-radius:24px; font-size:16px; margin-top:20px;"></textarea>
-        </section>
+        <section id="tab-crm" class="tab-view hidden"><h2>CRM Clientes</h2><div id="crm-grid" class="grid" style="grid-template-columns: repeat(3, 1fr); margin-top:20px;"></div></section>
+        <section id="tab-pecas" class="tab-view hidden"><h2>Gestão de Peças</h2><div class="glass-card" style="margin-top:20px; padding:0;"><table><thead><tr><th style="padding:20px; text-align:left;">Artigo</th><th style="padding:20px; text-align:left;">Estado</th></tr></thead><tbody id="pecas-list"></tbody></table></div></section>
+        <section id="tab-fin" class="tab-view hidden"><h2>Financeiro</h2><div id="fin-history" class="glass-card" style="margin-top:20px;"></div></section>
+        <section id="tab-oficina" class="tab-view hidden"><h2>Notas de Oficina</h2><textarea id="oficina-memo" oninput="App.saveMemo()" style="width:100%; height:500px; margin-top:20px; font-size:16px;"></textarea></section>
     </main>
 
     <script>
         const App = {
-            db: JSON.parse(localStorage.getItem('POINT_SUPREME_DB')) || { 
-                events: [], pecas: [], transacoes: [], memo: "", clientes: [], privacy: false, notes: [], currentView: 'DETAILING' 
+            // Voltando à chave de base de dados estável de ontem
+            db: JSON.parse(localStorage.getItem('POINT_DB')) || { 
+                events: [], pecas: [], transacoes: [], memo: "", clientes: [], notes: [], privacy: false 
             },
-            
-            save() { localStorage.setItem('POINT_SUPREME_DB', JSON.stringify(this.db)); this.render(); },
+
+            save() { 
+                localStorage.setItem('POINT_DB', JSON.stringify(this.db)); 
+                this.render(); 
+            },
 
             render() {
-                // Saldo e Financeiro
+                // Lógica de cálculo correta: receitas - gastos
                 let r = 0, g = 0;
                 this.db.transacoes.forEach(t => t.type === 'E' ? r += t.val : g += t.val);
-                const mini = document.getElementById('mini-saldo');
-                mini.innerText = `€ ${(r-g).toFixed(2)}`;
-                if(this.db.privacy) mini.classList.add('blur-value'); else mini.classList.remove('blur-value');
-                
-                if(document.getElementById('fin-rec')) {
-                    document.getElementById('fin-rec').innerText = `€ ${r.toFixed(2)}`;
-                    document.getElementById('fin-gas').innerText = `€ ${g.toFixed(2)}`;
-                    document.getElementById('fin-history').innerHTML = this.db.transacoes.slice().reverse().map(t => `
-                        <div style="border-bottom:1px solid #111; padding:8px 0; display:flex; justify-content:space-between;">
-                            <span>${t.desc}</span> <span style="color:${t.type==='E'?'#22c55e':'#ef4444'}">${t.type==='E'?'+':'-'} €${t.val}</span>
-                        </div>
-                    `).join('');
-                }
+                const saldo = r - g;
+                const sEl = document.getElementById('mini-saldo');
+                sEl.innerText = `€ ${saldo.toFixed(2)}`;
+                if(this.db.privacy) sEl.classList.add('blur-value'); else sEl.classList.remove('blur-value');
 
-                // Task.OS / Notas
+                // Notas Task.OS
                 const nList = document.getElementById('notes-list');
-                if(nList) nList.innerHTML = this.db.notes.map((n, i) => `
-                    <div style="background:#111; padding:12px; border-radius:12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:13px;">${n.txt}</span>
-                        <i class="bi bi-trash" onclick="App.delNote(${i})" style="color:#333; cursor:pointer;"></i>
-                    </div>
-                `).join('');
+                if(nList) nList.innerHTML = this.db.notes.map((n, i) => `<div style="background:#111; padding:10px; border-radius:10px; margin-bottom:5px; font-size:12px; display:flex; justify-content:space-between;">${n.txt} <i class="bi bi-x" onclick="App.delNote(${i})"></i></div>`).join('');
 
-                // Peças Dashboard e Lista
-                const s = { PENDENTE: 0, ENCOMENDADA: 0, ACEITE: 0, CONCLUIDO: 0 };
-                this.db.pecas.forEach(p => { if(s[p.status] !== undefined) s[p.status]++; });
-                const dGrid = document.getElementById('dash-pecas-grid');
-                if(dGrid) dGrid.innerHTML = Object.keys(s).map(k => `<div class="peca-stat-card">${k.toLowerCase()}<span>${s[k]}</span></div>`).join('');
-
+                // Peças
                 const pList = document.getElementById('pecas-list');
-                if(pList) pList.innerHTML = this.db.pecas.map((p, i) => `
-                    <tr>
-                        <td style="padding:20px;">${p.nome}</td>
-                        <td><span class="status-badge status-${p.status.toLowerCase()}" onclick="App.cyclePeca(${i})">${p.status}</span></td>
-                        <td style="text-align:right; padding:20px;"><i class="bi bi-trash" onclick="App.deletePeca(${i})" style="cursor:pointer;"></i></td>
-                    </tr>
-                `).join('');
+                if(pList) pList.innerHTML = this.db.pecas.map((p, i) => `<tr><td style="padding:20px;">${p.nome}</td><td><span class="status-badge status-${p.status.toLowerCase()}" onclick="App.cyclePeca(${i})">${p.status}</span></td></tr>`).join('');
 
                 // CRM
                 const cGrid = document.getElementById('crm-grid');
-                if(cGrid) cGrid.innerHTML = this.db.clientes.map((c, i) => `
-                    <div class="glass-card">
-                        <h4 style="color:var(--brand)">${c.nome}</h4>
-                        <p style="font-size:12px; color:var(--zinc-500); margin-top:5px;">${c.tel} | ${c.carro}</p>
-                        <button onclick="App.delClient(${i})" style="margin-top:15px; background:none; border:none; color:#ef4444; font-size:10px;">REMOVER</button>
-                    </div>
-                `).join('');
-
-                document.getElementById('btn-privacy').innerText = `Privacidade: ${this.db.privacy ? 'ON' : 'OFF'}`;
+                if(cGrid) cGrid.innerHTML = this.db.clientes.map(c => `<div class="glass-card"><h4>${c.nome}</h4><p style="font-size:12px; color:gray;">${c.tel}</p></div>`).join('');
+                
                 if(document.getElementById('oficina-memo')) document.getElementById('oficina-memo').value = this.db.memo || "";
-            },
-
-            // LOGICA CALENDÁRIO
-            switchCal(type) {
-                this.db.currentView = type;
-                document.getElementById('btn-cal-det').classList.toggle('active', type === 'DETAILING');
-                document.getElementById('btn-cal-mec').classList.toggle('active', type === 'MECANICA');
-                this.refreshCalendar();
-            },
-
-            refreshCalendar() {
-                window.calendar.removeAllEvents();
-                const filtered = this.db.events.filter(e => e.extendedProps?.tipo === this.db.currentView);
-                window.calendar.addEventSource(filtered);
+                document.getElementById('btn-privacy').innerText = `Privacidade: ${this.db.privacy ? 'ON' : 'OFF'}`;
             },
 
             addBooking(tipo) {
-                const cli = prompt("Cliente / Veículo:");
-                const val = parseFloat(prompt("Valor Estimado (€):") || 0);
+                const cli = prompt("Cliente:");
+                const val = parseFloat(prompt("Valor (€):") || 0);
                 if(cli) {
-                    const id = Date.now();
-                    const evt = { 
-                        id, 
-                        title: `${cli} | €${val}`, 
-                        start: new Date().toISOString().split('T')[0], 
-                        backgroundColor: tipo === 'MECANICA' ? '#3b82f6' : '#f97316', 
-                        borderColor: 'transparent',
-                        extendedProps: { tipo, val } 
-                    };
-                    this.db.events.push(evt);
-                    this.db.transacoes.push({ type: 'E', val, desc: `[${tipo}] ${cli}` });
+                    this.db.events.push({ title: `${cli} | €${val}`, start: new Date().toISOString().split('T')[0], backgroundColor: tipo === 'MECANICA' ? '#3b82f6' : '#f97316' });
+                    this.db.transacoes.push({ type: 'E', val, desc: cli });
                     this.save();
-                    this.refreshCalendar();
+                    location.reload();
                 }
             },
 
-            // OUTRAS FUNÇÕES
-            addNote() { const i = document.getElementById('note-input'); if(i.value) { this.db.notes.push({ txt: i.value }); i.value = ''; this.save(); } },
+            addNote() { const i = document.getElementById('note-input'); if(i.value) { this.db.notes.push({ txt: i.value }); i.value=''; this.save(); } },
             delNote(i) { this.db.notes.splice(i,1); this.save(); },
-            addPeca() { const n = prompt("Artigo / Peça:"); if(n) { this.db.pecas.push({ nome: n, status: 'PENDENTE' }); this.save(); } },
             cyclePeca(i) { const s = ['PENDENTE', 'ORCAMENTADA', 'ACEITE', 'ENCOMENDADA', 'CONCLUIDO']; this.db.pecas[i].status = s[(s.indexOf(this.db.pecas[i].status) + 1) % s.length]; this.save(); },
-            deletePeca(i) { this.db.pecas.splice(i,1); this.save(); },
-            addClient() { const n = prompt("Nome:"); const t = prompt("Tel:"); const c = prompt("Carro:"); if(n) { this.db.clientes.push({ nome: n, tel: t, carro: c }); this.save(); } },
-            delClient(i) { this.db.clientes.splice(i,1); this.save(); },
+            saveMemo() { this.db.memo = document.getElementById('oficina-memo').value; localStorage.setItem('POINT_DB', JSON.stringify(this.db)); },
             togglePrivacy() { this.db.privacy = !this.db.privacy; this.save(); },
-            manualTrans(t) { const v = parseFloat(prompt("Valor:")); const d = prompt("Desc:"); if(v) { this.db.transacoes.push({ type: t, val: v, desc: d }); this.save(); } },
-            saveMemo() { this.db.memo = document.getElementById('oficina-memo').value; localStorage.setItem('POINT_SUPREME_DB', JSON.stringify(this.db)); },
-            exportDB() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(this.db)], {type:'application/json'})); a.download = 'point_backup.json'; a.click(); },
+            exportDB() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(this.db)], {type:'application/json'})); a.download = 'backup.json'; a.click(); },
             importDB() { const i = document.createElement('input'); i.type = 'file'; i.onchange = e => { const r = new FileReader(); r.onload = ev => { this.db = JSON.parse(ev.target.result); this.save(); location.reload(); }; r.readAsText(e.target.files[0]); }; i.click(); }
         };
 
@@ -283,18 +154,11 @@
             document.getElementById(id).classList.remove('hidden');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
-            if(id === 'tab-dash') setTimeout(() => window.calendar.render(), 10);
-            if(id === 'tab-fin') setTimeout(() => App.initChart(), 10);
         }};
 
         window.onload = () => {
             App.render();
-            window.calendar = new FullCalendar.Calendar(document.getElementById('calendar-main'), {
-                initialView: 'dayGridMonth', locale: 'pt-pt', 
-                events: App.db.events.filter(e => e.extendedProps?.tipo === App.db.currentView),
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth' }
-            });
-            window.calendar.render();
+            new FullCalendar.Calendar(document.getElementById('calendar-main'), { initialView: 'dayGridMonth', locale: 'pt-pt', events: App.db.events }).render();
         };
     </script>
 </body>
