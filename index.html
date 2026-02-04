@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>POINT.OS | SUPREME V7.0</title>
+    <title>POINT.OS | SUPREME V7.1</title>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -41,8 +41,9 @@
         .status-encomendada { background: #4c1d95; color: #a78bfa; border-color: #5b21b6; }
 
         #calendar-main { background: #000; border-radius: 20px; padding: 10px; min-height: 550px; border: 1px solid var(--border); }
-        .fc .fc-button { background: #111 !important; border: 1px solid #1a1a1a !important; color: white !important; font-size: 10px !important; font-weight: 800 !important; text-transform: uppercase; }
+        .fc .fc-button { background: #111 !important; border: 1px solid #1a1a1a !important; color: white !important; font-size: 9px !important; font-weight: 800 !important; text-transform: uppercase; }
         .fc .fc-button-active { background: var(--brand) !important; border-color: var(--brand) !important; }
+        .fc .fc-toolbar-title { font-size: 1.1em !important; font-weight: 800; }
         
         .cal-selector { display: flex; background: #111; border: 1px solid #1a1a1a; padding: 4px; border-radius: 12px; margin-bottom: 15px; }
         .cal-btn { flex: 1; padding: 10px; border-radius: 8px; font-size: 10px; font-weight: 900; text-transform: uppercase; text-align: center; cursor: pointer; color: #52525b; }
@@ -191,18 +192,13 @@
                 const total = parseFloat(prompt("Valor Total Bruto (€):") || 0);
                 const sinal = parseFloat(prompt("Valor do SINAL (€):") || 0);
                 let lucroTotal = total;
-                
                 if(type === 'mecanica') lucroTotal = parseFloat(prompt("LUCRO LÍQUIDO ESTIMADO (€):") || 0);
-                
                 const id = Date.now().toString();
                 const finalTitle = type === 'mecanica' ? `${title} (MECANICA)` : title;
-
                 if(sinal > 0) {
                     this.db.transacoes.push({ id: id+'_S', bookingId: id, type: 'E', cat: type, desc: `SINAL: ${finalTitle}`, val: sinal, date: startISO.split('T')[0], confirmed: true });
                 }
-                
                 this.db.transacoes.push({ id: id, bookingId: id, type: 'E', cat: type, desc: finalTitle, val: lucroTotal - sinal, date: startISO.split('T')[0], confirmed: false });
-                
                 const color = type === 'mecanica' ? '#3b82f6' : '#f97316';
                 this.db.events.push({ id, title: `${finalTitle} | €${total}`, start: startISO, backgroundColor: color, borderColor: color, extendedProps: { total, lucro: lucroTotal, sinal, client: title, type } });
                 this.save();
@@ -228,20 +224,15 @@
             render() {
                 let r = 0, g = 0;
                 this.db.transacoes.forEach(t => { if(t.confirmed) t.type === 'E' ? r += t.val : g += t.val; });
-                
                 document.getElementById('mini-saldo').innerText = `€ ${(r-g).toFixed(2)}`;
                 if(document.getElementById('fin-rec')) {
                     document.getElementById('fin-rec').innerText = `€ ${r.toFixed(2)}`;
                     document.getElementById('fin-gas').innerText = `€ ${g.toFixed(2)}`;
                 }
-
-                // Privacy Mode
                 document.querySelectorAll('#mini-saldo, #fin-rec, #fin-gas').forEach(el => {
                     this.db.privacy ? el.classList.add('blur-value') : el.classList.remove('blur-value');
                 });
                 document.getElementById('btn-privacy').innerText = `Privacidade: ${this.db.privacy ? 'ON' : 'OFF'}`;
-
-                // Peças List
                 document.getElementById('pecas-list').innerHTML = this.db.pecas.map(p => `
                     <tr style="border-bottom: 1px solid #111;">
                         <td style="padding:15px;">${p.n}</td>
@@ -250,8 +241,6 @@
                         <td style="text-align:right; padding:15px;"><button onclick="App.delPeca(${p.id})" style="background:none; border:none; color:red;"><i class="bi bi-trash"></i></button></td>
                     </tr>
                 `).join('');
-
-                // Dashboard Peças
                 const count = (s) => this.db.pecas.filter(p => p.status === s).length;
                 const ests = [{l:'Pend',c:'#fbbf24',k:'Pendente'}, {l:'Orç',c:'#34d399',k:'Orçamentada'}, {l:'Aceite',c:'#60a5fa',k:'Aceite'}, {l:'Enc',c:'#a78bfa',k:'Encomendada'}];
                 document.getElementById('dash-pecas-grid').innerHTML = ests.map(e => `
@@ -260,7 +249,6 @@
                         <p style="font-size:18px; font-weight:900;">${count(e.k)}</p>
                     </div>
                 `).join('');
-
                 document.getElementById('notes-list').innerHTML = this.db.notes.map(n => `<div style="display:flex; justify-content:space-between; background:#111; padding:12px; border-radius:12px; margin-bottom:8px; font-size:13px;"><span>${n.txt}</span><button onclick="App.delNote(${n.id})" style="color:var(--brand); border:none; background:none;"><i class="bi bi-check-circle"></i></button></div>`).join('');
                 document.getElementById('fin-history').innerHTML = this.db.transacoes.slice().reverse().map(t => `<div style="padding:12px; border-bottom:1px solid #111; font-size:11px; opacity:${t.confirmed?1:0.3}"><span>${t.desc}</span> <b style="float:right; color:${t.type==='E'?'#22c55e':'#ef4444'}">€${t.val.toFixed(2)}</b></div>`).join('');
                 document.getElementById('oficina-servicos').innerHTML = this.db.events.map(e => `<div style="padding:15px; background:#111; margin-bottom:10px; border-radius:12px; border-left:4px solid ${e.backgroundColor}"><b>${e.title}</b><br><small>${e.start.split('T')[0]}</small></div>`).join('');
@@ -271,7 +259,11 @@
                 window.calendar = new FullCalendar.Calendar(document.getElementById('calendar-main'), {
                     initialView: 'dayGridMonth', locale: 'pt-pt',
                     editable: true, eventLongPressDelay: 600,
-                    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
+                    headerToolbar: { 
+                        left: 'prev,next today', 
+                        center: 'title', 
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek' // ADICIONADO timeGridDay
+                    },
                     selectable: true, 
                     select: (i) => { const t = prompt("Viatura:"); if(t) App.processBooking(t, i.startStr); },
                     eventClick: (i) => App.editBooking(i.event),
