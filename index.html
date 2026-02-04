@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>POINT.OS | SUPREME V6.8</title>
+    <title>POINT.OS | SUPREME ENGINE</title>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,246 +13,436 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        :root { --brand: #f97316; --bg: #030303; --surface: #0a0a0a; --border: #1a1a1a; --zinc-400: #a1a1aa; --zinc-500: #71717a; --zinc-800: #27272a; --zinc-900: #18181b; }
         
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body { background-color: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: #e5e7eb; display: flex; flex-direction: column; overflow-x: hidden; min-height: 100vh; }
-        
-        /* NAVIGATION */
-        .sidebar { width: 100%; height: 75px; background: #000; border-top: 1px solid var(--border); position: fixed; bottom: 0; z-index: 1000; display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #52525b; cursor: pointer; font-size: 10px; font-weight: 700; gap: 4px; flex: 1; }
-        .nav-item.active { color: var(--brand); }
-        .nav-item i { font-size: 22px; }
+        :root { 
+            --brand: #f97316; --bg: #030303; --surface: #0a0a0a; --border: #1a1a1a;
+            --zinc-400: #a1a1aa; --zinc-800: #27272a; --zinc-900: #18181b; 
+        }
 
-        .viewport { width: 100%; padding: 20px; padding-bottom: 100px; padding-top: calc(10px + env(safe-area-inset-top)); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        body { background-color: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: #e5e7eb; display: flex; overflow-x: hidden; height: 100vh; }
         
-        /* CARDS */
-        .glass-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 20px; }
-        .grid { display: grid; gap: 15px; }
+        /* Sidebar Integrada */
+        .sidebar { width: 260px; background: #000; border-right: 1px solid var(--border); height: 100vh; position: fixed; z-index: 50; padding: 40px 0; display: flex; flex-direction: column; }
+        .sidebar-logo { padding: 0 40px; margin-bottom: 40px; font-size: 26px; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -1px; }
+        .viewport { margin-left: 260px; width: 100%; min-height: 100vh; padding: 40px; overflow-y: auto; }
+        
+        .nav-item { display: flex; align-items: center; padding: 14px 20px; color: #52525b; border-radius: 12px; margin: 4px 16px; cursor: pointer; transition: 0.2s; font-size: 14px; font-weight: 600; }
+        .nav-item.active { background: #111; color: var(--brand); }
+        .nav-item i { margin-right: 12px; font-size: 18px; }
+
+        /* Cards & Grids */
+        .glass-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 24px; margin-bottom: 20px; }
         .flex { display: flex; }
         .justify-between { justify-content: space-between; }
-        
-        /* BUTTONS */
-        .btn-orange { background: var(--brand); color: white; border: none; padding: 12px 20px; border-radius: 14px; font-weight: 800; font-size: 10px; text-transform: uppercase; cursor: pointer; }
-        .btn-zinc { background: var(--zinc-900); color: white; border: 1px solid var(--zinc-800); padding: 12px 20px; border-radius: 14px; font-weight: 800; font-size: 10px; text-transform: uppercase; cursor: pointer; }
-        
-        /* CALENDAR CUSTOM */
-        #calendar-main { background: #000; border-radius: 20px; padding: 10px; min-height: 500px; border: 1px solid var(--border); font-size: 11px; }
-        .fc .fc-button { background: #111 !important; border: 1px solid #1a1a1a !important; color: white !important; font-size: 9px !important; font-weight: 800 !important; text-transform: uppercase !important; }
+        .grid { display: grid; gap: 20px; }
+        .grid-12 { grid-template-columns: repeat(12, 1fr); }
+        .hidden { display: none !important; }
+
+        /* Buttons */
+        .btn-orange { background: var(--brand); color: white; border: none; padding: 14px 24px; border-radius: 16px; font-weight: 800; font-size: 11px; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
+        .btn-zinc { background: var(--zinc-900); color: white; border: 1px solid var(--zinc-800); padding: 12px 24px; border-radius: 16px; font-weight: 800; font-size: 11px; text-transform: uppercase; cursor: pointer; }
+
+        /* Status de Peças */
+        .status-badge { padding: 6px 12px; border-radius: 99px; font-size: 9px; font-weight: 900; text-transform: uppercase; cursor: pointer; border: 1px solid transparent; }
+        .status-pendente { background: #422006; color: #fbbf24; border-color: #78350f; }
+        .status-orcamentada { background: #064e3b; color: #34d399; border-color: #065f46; }
+        .status-aceite { background: #1e3a8a; color: #60a5fa; border-color: #1e40af; }
+        .status-encomendada { background: #4c1d95; color: #a78bfa; border-color: #5b21b6; }
+
+        /* FullCalendar Customization */
+        #calendar-main { background: #000; border-radius: 20px; padding: 15px; min-height: 650px; border: 1px solid var(--border); }
+        .fc { --fc-border-color: #1a1a1a; --fc-page-bg-color: #000; font-size: 13px; }
+        .fc .fc-toolbar-title { font-size: 1.2em !important; font-weight: 800; text-transform: uppercase; color: var(--brand); }
+        .fc .fc-button-primary { background: #111 !important; border: 1px solid #1a1a1a !important; font-size: 9px !important; font-weight: 800 !important; text-transform: uppercase !important; padding: 8px 12px !important; }
         .fc .fc-button-active { background: var(--brand) !important; border-color: var(--brand) !important; }
-        .fc .fc-toolbar-title { font-size: 14px !important; font-weight: 900; }
+        .fc-v-event { border-radius: 8px; border: none; padding: 2px 5px; }
         
-        .cal-selector { display: flex; background: #111; border: 1px solid #1a1a1a; padding: 4px; border-radius: 12px; margin-bottom: 15px; }
-        .cal-btn { flex: 1; padding: 10px; border-radius: 8px; font-size: 10px; font-weight: 900; text-transform: uppercase; text-align: center; cursor: pointer; color: #52525b; }
+        .cal-selector { display: flex; background: #111; border: 1px solid var(--border); padding: 4px; border-radius: 12px; margin-bottom: 15px; }
+        .cal-btn { flex: 1; padding: 12px; border-radius: 10px; font-size: 10px; font-weight: 900; text-transform: uppercase; text-align: center; cursor: pointer; color: #52525b; transition: 0.3s; }
         .cal-btn.active { background: var(--brand); color: white; }
 
-        .status-badge { padding: 6px 10px; border-radius: 99px; font-size: 8px; font-weight: 900; text-transform: uppercase; cursor: pointer; }
-        .status-pendente { background: #422006; color: #fbbf24; }
-        .status-orcamentada { background: #064e3b; color: #34d399; }
-        .status-aceite { background: #1e3a8a; color: #60a5fa; }
-        .status-encomendada { background: #4c1d95; color: #a78bfa; }
-        
         .blur-value { filter: blur(12px) !important; }
-        .hidden { display: none !important; }
-        input, textarea { background: #000; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 12px; width: 100%; font-size: 14px; }
+
+        @media (max-width: 1024px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; border-bottom: 1px solid var(--border); padding: 20px 0; }
+            .viewport { margin-left: 0; padding: 20px; }
+            .grid-12 { display: block; }
+        }
     </style>
 </head>
 <body>
 
+    <aside class="sidebar">
+        <div class="sidebar-logo">Point<span style="color:var(--brand)">.</span>os</div>
+        <nav style="flex-grow: 1;">
+            <div onclick="Nav.to('tab-dash', this)" class="nav-item active"><i class="bi bi-speedometer2"></i> Dashboard</div>
+            <div onclick="Nav.to('tab-crm', this)" class="nav-item"><i class="bi bi-people"></i> CRM</div>
+            <div onclick="Nav.to('tab-pecas', this)" class="nav-item"><i class="bi bi-cart4"></i> Peças</div>
+            <div onclick="Nav.to('tab-fin', this)" class="nav-item"><i class="bi bi-graph-up-arrow"></i> Financeiro</div>
+            <div onclick="Nav.to('tab-oficina', this)" class="nav-item"><i class="bi bi-wrench"></i> Oficina</div>
+        </nav>
+        <div style="padding: 0 20px; display: grid; gap: 8px; margin-bottom: 20px;">
+            <button onclick="App.exportDB()" class="btn-zinc" style="font-size: 9px;"><i class="bi bi-download"></i> Backup</button>
+            <button onclick="App.importDB()" class="btn-zinc" style="font-size: 9px;"><i class="bi bi-upload"></i> Restaurar</button>
+            <button onclick="App.togglePrivacy()" class="btn-zinc" style="font-size: 9px;"><i class="bi bi-eye-slash"></i> Privacidade</button>
+        </div>
+    </aside>
+
     <main class="viewport">
         <section id="tab-dash" class="tab-view">
-            <header class="flex justify-between items-center" style="margin-bottom: 25px;">
-                <h2 style="font-size: 24px; font-weight: 900; font-style: italic;">POINT<span style="color:var(--brand)">.</span>OS</h2>
-                <div class="flex" style="gap: 8px;">
-                    <button onclick="App.createBookingFromBtn('detailing')" class="btn-orange">+ DET</button>
-                    <button onclick="App.createBookingFromBtn('mecanica')" class="btn-zinc">+ MEC</button>
+            <header class="flex justify-between items-center" style="margin-bottom: 30px;">
+                <h2 style="font-size: 32px; font-weight: 900; font-style: italic; text-transform: uppercase;">Operações</h2>
+                <div class="flex" style="gap: 12px;">
+                    <button onclick="App.createBookingFromBtn('detailing')" class="btn-orange">+ Novo Detailing</button>
+                    <button onclick="App.createBookingFromBtn('mecanica')" class="btn-zinc" style="background: #1d4ed8; border:none;">+ Nova Mecânica</button>
                 </div>
             </header>
-
-            <div class="glass-card" style="text-align: center; border: 1px solid var(--brand);">
-                <p style="font-size: 9px; font-weight: 900; color: var(--brand); margin-bottom: 5px; text-transform: uppercase;">Saldo Disponível</p>
-                <h2 id="mini-saldo" style="font-size: 32px; font-weight: 900;">€ 0.00</h2>
-            </div>
-
-            <div class="glass-card">
-                <div class="cal-selector">
-                    <div id="btn-cal-det" onclick="App.switchCal('detailing')" class="cal-btn active">Detailing</div>
-                    <div id="btn-cal-mec" onclick="App.switchCal('mecanica')" class="cal-btn">Mecânica</div>
+            
+            <div class="grid grid-12">
+                <div class="glass-card" style="grid-column: span 8;">
+                    <div class="cal-selector">
+                        <div id="btn-cal-det" onclick="App.switchCal('detailing')" class="cal-btn active">Detailing</div>
+                        <div id="btn-cal-mec" onclick="App.switchCal('mecanica')" class="cal-btn">Mecânica</div>
+                    </div>
+                    <div id="calendar-main"></div>
                 </div>
-                <div id="calendar-main"></div>
-            </div>
+                
+                <div style="grid-column: span 4;">
+                    <div class="glass-card" style="text-align: center; border: 2px solid rgba(249,115,22,0.3);">
+                        <p style="font-size: 10px; font-weight: 900; color: var(--brand);">SALDO DISPONÍVEL</p>
+                        <h2 id="mini-saldo" style="font-size: 32px; font-weight: 900;">€ 0.00</h2>
+                    </div>
 
-            <div class="glass-card">
-                <h3 style="font-size: 10px; color: var(--zinc-500); margin-bottom: 12px; text-transform: uppercase;">Task.OS / Notas</h3>
-                <div class="flex" style="gap: 8px; margin-bottom: 15px;">
-                    <input type="text" id="note-input" placeholder="Nova nota...">
-                    <button onclick="App.saveNote()" class="btn-orange">+</button>
+                    <div class="glass-card">
+                        <h3 style="font-size: 11px; color: gray; margin-bottom: 15px; text-transform: uppercase;">Monitor de Peças</h3>
+                        <div id="dash-pecas-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px;"></div>
+                        
+                        <h3 style="font-size: 11px; color: gray; margin-bottom: 12px; text-transform: uppercase;">Notas de Hoje</h3>
+                        <div class="flex" style="gap: 8px; margin-bottom: 15px;">
+                            <input type="text" id="note-input" placeholder="Lembrete..." style="width: 100%; background: #000; border: 1px solid var(--border); border-radius: 12px; padding: 12px; color: white; outline: none;">
+                            <button onclick="App.saveNote()" class="btn-orange" style="padding: 12px 18px;">+</button>
+                        </div>
+                        <div id="notes-list"></div>
+                    </div>
                 </div>
-                <div id="notes-list"></div>
             </div>
-
-            <div id="dash-pecas-grid" class="grid" style="grid-template-columns: repeat(2, 1fr);"></div>
         </section>
 
         <section id="tab-crm" class="tab-view hidden">
-            <div class="flex justify-between" style="margin-bottom:20px;"><h2>CRM</h2><button onclick="App.addClient()" class="btn-orange">+ Novo</button></div>
-            <div id="crm-grid" class="grid"></div>
+            <header class="flex justify-between items-center" style="margin-bottom: 30px;">
+                <h2 style="font-size: 24px; font-weight: 900;">GESTOR DE CLIENTES</h2>
+                <button onclick="App.addClient()" class="btn-orange">+ Registo de Cliente</button>
+            </header>
+            <div id="crm-grid" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));"></div>
         </section>
 
         <section id="tab-pecas" class="tab-view hidden">
-            <div class="flex justify-between" style="margin-bottom:20px;"><h2>PEÇAS</h2><button onclick="App.addPeca()" class="btn-zinc" style="background:#2563eb">+ Nova</button></div>
-            <div class="glass-card" style="padding:0; overflow: hidden;">
-                <table style="width:100%;"><tbody id="pecas-list"></tbody></table>
+            <header class="flex justify-between items-center" style="margin-bottom: 30px;">
+                <h2 style="font-size: 24px; font-weight: 900;">CONTROLO DE STOCK / ENCOMENDAS</h2>
+                <button onclick="App.addPeca()" class="btn-zinc" style="background:#2563eb; border:none;">+ Nova Peça</button>
+            </header>
+            <div class="glass-card" style="padding: 0; overflow: hidden;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead style="font-size: 10px; color: var(--zinc-400); text-transform: uppercase; background: #050505;">
+                        <tr>
+                            <th style="padding: 20px; text-align: left;">Artigo</th>
+                            <th style="padding: 20px; text-align: left;">Fornecedor</th>
+                            <th style="padding: 20px; text-align: center;">Estado</th>
+                            <th style="padding: 20px; text-align: right;">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pecas-list"></tbody>
+                </table>
             </div>
         </section>
 
         <section id="tab-fin" class="tab-view hidden">
-            <div class="grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 20px;">
-                <div class="glass-card"><h3>Entradas</h3><h2 id="fin-rec" style="color: #22c55e;">€ 0.00</h2></div>
-                <div class="glass-card"><h3>Saídas</h3><h2 id="fin-gas" style="color: #ef4444;">€ 0.00</h2></div>
+            <div class="grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 30px;">
+                <div class="glass-card"><h3>Total Receitas</h3><h2 id="fin-rec" style="color: #22c55e;">€ 0.00</h2></div>
+                <div class="glass-card"><h3>Total Gastos</h3><h2 id="fin-gas" style="color: #ef4444;">€ 0.00</h2></div>
+                <button onclick="App.transac('E')" class="btn-zinc" style="color: #22c55e; border-color: #22c55e;">+ Entrada Manual</button>
+                <button onclick="App.transac('S')" class="btn-zinc" style="color: #ef4444; border-color: #ef4444;">- Saída / Gasto</button>
             </div>
-            <div class="glass-card" style="height: 250px;"><canvas id="fin-chart"></canvas></div>
-            <div class="glass-card" id="fin-history"></div>
-            <div class="grid" style="margin-top:20px;">
-                <button onclick="App.exportDB()" class="btn-zinc">Backup</button>
-                <button onclick="App.togglePrivacy()" class="btn-zinc">Privacidade</button>
+            <div class="grid grid-12">
+                <div class="glass-card" style="grid-column: span 8; height: 450px;"><canvas id="fin-chart"></canvas></div>
+                <div class="glass-card" style="grid-column: span 4; height: 450px; overflow-y: auto;">
+                    <h4 style="font-size: 11px; margin-bottom: 15px; color: gray; text-transform: uppercase;">Fluxo de Caixa</h4>
+                    <div id="fin-history"></div>
+                </div>
             </div>
         </section>
 
         <section id="tab-oficina" class="tab-view hidden">
-            <h2>NOTAS TÉCNICAS</h2>
-            <textarea id="oficina-memo" oninput="App.saveMemo()" style="width:100%; height:400px; margin-top:20px; font-family: monospace;"></textarea>
-            <div id="oficina-servicos" style="margin-top:20px;"></div>
+            <div class="grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="glass-card">
+                    <h3 style="margin-bottom:20px;">Serviços Ativos</h3>
+                    <div id="oficina-servicos"></div>
+                </div>
+                <div class="glass-card">
+                    <h3 style="margin-bottom:20px;">Memo Interno</h3>
+                    <textarea id="oficina-memo" oninput="App.saveMemo()" placeholder="Escreva aqui notas sobre trabalhos em curso, diagnósticos ou lembretes..." style="width:100%; height:450px; background:#000; color:#fff; border:1px solid #1a1a1a; border-radius:16px; padding:20px; outline:none; font-family: inherit; line-height: 1.6; font-size: 14px;"></textarea>
+                </div>
+            </div>
         </section>
     </main>
 
-    <nav class="sidebar">
-        <div onclick="Nav.to('tab-dash', this)" class="nav-item active"><i class="bi bi-calendar3"></i><span>Agenda</span></div>
-        <div onclick="Nav.to('tab-crm', this)" class="nav-item"><i class="bi bi-people"></i><span>Clientes</span></div>
-        <div onclick="Nav.to('tab-pecas', this)" class="nav-item"><i class="bi bi-cart4"></i><span>Peças</span></div>
-        <div onclick="Nav.to('tab-fin', this)" class="nav-item"><i class="bi bi-graph-up-arrow"></i><span>Fin</span></div>
-        <div onclick="Nav.to('tab-oficina', this)" class="nav-item"><i class="bi bi-wrench"></i><span>Memo</span></div>
-    </nav>
-
     <script>
         const App = {
-            db: JSON.parse(localStorage.getItem('POINT_OS_MASTER_DB')) || { events: [], pecas: [], transacoes: [], notes: [], clientes: [], privacy: false, memo: "" },
+            db: { events: [], pecas: [], transacoes: [], notes: [], clientes: [], privacy: false, memo: "" },
             currentView: 'detailing',
 
-            init() { this.render(); this.initCalendar(); this.initChart(); if(document.getElementById('oficina-memo')) document.getElementById('oficina-memo').value = this.db.memo || ""; },
-            save() { localStorage.setItem('POINT_OS_MASTER_DB', JSON.stringify(this.db)); this.render(); this.refreshCalendar(); },
+            init() { 
+                const saved = localStorage.getItem('POINT_OS_MASTER_DB');
+                if(saved) this.db = JSON.parse(saved);
+                this.render(); 
+                this.initCalendar();
+                this.initChart();
+                if(document.getElementById('oficina-memo')) document.getElementById('oficina-memo').value = this.db.memo || "";
+            },
 
-            switchCal(type) { this.currentView = type; document.getElementById('btn-cal-det').classList.toggle('active', type === 'detailing'); document.getElementById('btn-cal-mec').classList.toggle('active', type === 'mecanica'); this.refreshCalendar(); },
+            save() { 
+                localStorage.setItem('POINT_OS_MASTER_DB', JSON.stringify(this.db)); 
+                this.render(); 
+                if(window.calendar) this.refreshCalendar();
+            },
 
-            refreshCalendar() {
-                if(!window.calendar) return;
-                window.calendar.removeAllEvents();
-                const filtered = this.db.events.filter(e => { const isMec = e.title.includes('(MECANICA)'); return this.currentView === 'mecanica' ? isMec : !isMec; });
-                window.calendar.addEventSource(filtered);
+            render() {
+                // 1. Financeiro Central
+                let r = 0, g = 0;
+                this.db.transacoes.forEach(t => { if(t.confirmed) t.type === 'E' ? r += t.val : g += t.val; });
+                document.getElementById('mini-saldo').innerText = `€ ${(r-g).toFixed(2)}`;
+                if(document.getElementById('fin-rec')) {
+                    document.getElementById('fin-rec').innerText = `€ ${r.toFixed(2)}`;
+                    document.getElementById('fin-gas').innerText = `€ ${g.toFixed(2)}`;
+                }
+
+                // Privacy Toggle
+                const p = this.db.privacy;
+                document.querySelectorAll('#mini-saldo, #fin-rec, #fin-gas').forEach(el => p ? el.classList.add('blur-value') : el.classList.remove('blur-value'));
+
+                // 2. Peças List
+                document.getElementById('pecas-list').innerHTML = this.db.pecas.map(p => `
+                    <tr style="border-bottom: 1px solid #0a0a0a;">
+                        <td style="padding: 18px 20px; font-weight: 800; font-size: 13px;">${p.n}</td>
+                        <td style="padding: 18px 20px; color: #71717a; font-size: 12px;">${p.f || 'S/ Fornecedor'}</td>
+                        <td style="text-align: center;"><span onclick="App.togglePecaStatus(${p.id})" class="status-badge status-${p.status.toLowerCase().replace('ç', 'c')}">${p.status}</span></td>
+                        <td style="text-align: right; padding-right:20px;"><button onclick="App.delPeca(${p.id})" style="color:#ef4444; background:none; border:none; font-size:16px; cursor:pointer;"><i class="bi bi-trash3"></i></button></td>
+                    </tr>`).join('');
+
+                // 3. Dash Peças Counters
+                const count = (s) => this.db.pecas.filter(x => x.status === s).length;
+                const estados = [{l:'Pendentes',c:'#fbbf24',k:'Pendente'},{l:'Orçadas',c:'#34d399',k:'Orçamentada'},{l:'Aceites',c:'#60a5fa',k:'Aceite'},{l:'Encom.',c:'#a78bfa',k:'Encomendada'}];
+                document.getElementById('dash-pecas-grid').innerHTML = estados.map(e => `
+                    <div style="background:#000; padding:15px; border-radius:16px; text-align:center; border: 1px solid #111;">
+                        <p style="font-size:8px; color:${e.c}; font-weight:900; margin-bottom:5px;">${e.l.toUpperCase()}</p>
+                        <p style="font-size:22px; font-weight:900;">${count(e.k)}</p>
+                    </div>`).join('');
+
+                // 4. Notes
+                document.getElementById('notes-list').innerHTML = this.db.notes.map(n => `
+                    <div style="display:flex; justify-content:space-between; background:#111; padding:14px; border-radius:14px; margin-bottom:10px; font-size:12px; border: 1px solid #1a1a1a;">
+                        <span style="font-weight:600;">${n.txt}</span>
+                        <button onclick="App.delNote(${n.id})" style="color:var(--brand); border:none; background:none; cursor:pointer;"><i class="bi bi-check2-circle"></i></button>
+                    </div>`).join('');
+
+                // 5. CRM Grid
+                document.getElementById('crm-grid').innerHTML = this.db.clientes.map(c => `
+                    <div class="glass-card" style="margin-bottom:0px;">
+                        <div style="font-size:10px; color:var(--brand); font-weight:900; margin-bottom:5px;">CLIENTE</div>
+                        <h4 style="font-size:18px; font-weight:800; margin-bottom:12px;">${c.nome}</h4>
+                        <div style="background:#000; padding:12px; border-radius:12px; margin-bottom:10px;">
+                            <p style="font-size:12px; font-weight:600;"><i class="bi bi-car-front" style="color:gray;"></i> ${c.car || 'S/ Viatura'}</p>
+                        </div>
+                        <p style="font-size:11px; color:gray;"><i class="bi bi-telephone"></i> ${c.tel || 'Não registado'}</p>
+                    </div>`).join('');
+
+                // 6. Financeiro History
+                document.getElementById('fin-history').innerHTML = this.db.transacoes.slice().reverse().map(t => `
+                    <div style="display:flex; justify-content:space-between; padding:14px; background:#050505; border:1px solid #111; border-radius:16px; margin-bottom:10px; font-size:11px; ${!t.confirmed ? 'opacity:0.3' : ''}">
+                        <div>
+                            <div style="font-weight:800;">${t.desc}</div>
+                            <div style="font-size:9px; color:gray; margin-top:3px;">${t.date}</div>
+                        </div>
+                        <span style="color:${t.type==='E'?'#22c55e':'#ef4444'}; font-weight:900;">${t.type==='E'?'+':'-'}€${t.val.toFixed(2)}</span>
+                    </div>`).join('');
+
+                // 7. Oficina Ativos
+                document.getElementById('oficina-servicos').innerHTML = this.db.events.map(e => `
+                    <div style="padding:18px; background:#0a0a0a; border-left:5px solid ${e.backgroundColor}; border-radius:14px; font-size:12px; font-weight:800; margin-bottom:12px; border-top: 1px solid #111; border-right: 1px solid #111; border-bottom: 1px solid #111;">
+                        <div style="margin-bottom:5px;">${e.title}</div>
+                        <div style="color:gray; font-weight:400; font-size:10px;"><i class="bi bi-calendar3"></i> ${e.start.replace('T', ' ')}</div>
+                    </div>`).join('');
             },
 
             initCalendar() {
+                if(typeof FullCalendar === 'undefined') return;
                 window.calendar = new FullCalendar.Calendar(document.getElementById('calendar-main'), {
-                    initialView: 'dayGridMonth', 
+                    initialView: 'dayGridMonth',
                     locale: 'pt-pt',
-                    headerToolbar: { left: 'prev,next', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
-                    height: 'auto',
+                    headerToolbar: { 
+                        left: 'prev,next today', 
+                        center: 'title', 
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay' 
+                    },
+                    firstDay: 1,
                     selectable: true,
-                    select: (i) => { const t = prompt("Viatura:"); if(t) App.processBooking(t, i.startStr); },
+                    slotMinTime: "07:00:00",
+                    slotMaxTime: "21:00:00",
+                    allDaySlot: false,
+                    events: [],
+                    select: (i) => { const t = prompt("Nome Cliente / Viatura:"); if(t) App.processBooking(t, i.startStr); },
                     eventClick: (i) => App.editBooking(i.event)
                 });
                 window.calendar.render();
                 this.refreshCalendar();
             },
 
+            refreshCalendar() {
+                if(!window.calendar) return;
+                window.calendar.removeAllEvents();
+                const filtered = this.db.events.filter(e => {
+                    const isMec = e.title.includes('(MECANICA)');
+                    return this.currentView === 'mecanica' ? isMec : !isMec;
+                });
+                window.calendar.addEventSource(filtered);
+            },
+
             processBooking(title, startISO, forceType = null) {
                 const type = forceType || this.currentView;
                 const finalTitle = type === 'mecanica' ? `${title} (MECANICA)` : title;
-                const total = parseFloat(prompt("Valor Total Bruto (€):") || 0);
-                const sinal = parseFloat(prompt("Valor do SINAL (€):") || 0);
-                let lucroTotal = total;
-                if(type === 'mecanica') lucroTotal = parseFloat(prompt("LUCRO LÍQUIDO ESTIMADO (€):") || 0);
+                const total = parseFloat(prompt("VALOR TOTAL DO TRABALHO (€):") || 0);
+                
+                let valorParaSaldo = total;
+                if(type === 'mecanica') {
+                    valorParaSaldo = parseFloat(prompt("Deste valor, qual o seu LUCRO LÍQUIDO (€)?") || 0);
+                }
+
                 const id = Date.now().toString();
-                if(sinal > 0) this.db.transacoes.push({ id: id+'_S', bookingId: id, type: 'E', cat: type, desc: `SINAL: ${finalTitle}`, val: sinal, date: startISO.split('T')[0], confirmed: true });
-                this.db.transacoes.push({ id: id, bookingId: id, type: 'E', cat: type, desc: finalTitle, val: lucroTotal - sinal, date: startISO.split('T')[0], confirmed: false });
                 const color = type === 'mecanica' ? '#3b82f6' : '#f97316';
-                this.db.events.push({ id, title: `${finalTitle} | €${total}`, start: startISO, backgroundColor: color, borderColor: color, extendedProps: { total, lucro: lucroTotal, sinal: sinal, client: title, type: type } });
+                
+                this.db.transacoes.push({ id, bookingId: id, type: 'E', desc: finalTitle, val: valorParaSaldo, date: startISO.split('T')[0], confirmed: false });
+                this.db.events.push({ id, title: `${finalTitle} | €${total}`, start: startISO, backgroundColor: color, borderColor: color, extendedProps: { lucro: valorParaSaldo, total: total } });
                 this.save();
             },
 
             editBooking(event) {
-                const opt = prompt("1. Valor | 2. PAGO | 3. APAGAR | 4. REVERTER");
-                const id = event.id; const idx = this.db.events.findIndex(e => e.id === id);
-                if(idx === -1) return;
+                const opt = prompt("OPÇÕES:\n1. MARCAR COMO PAGO\n2. ALTERAR VALOR\n3. ELIMINAR AGENDAMENTO");
+                const id = event.id;
+                const idx = this.db.events.findIndex(e => e.id === id);
+
                 if(opt === "1") {
-                    const v = parseFloat(prompt("Novo Valor Total:"));
-                    this.db.events[idx].extendedProps.total = v;
-                    this.db.events[idx].title = `${this.db.events[idx].extendedProps.client} | €${v}`;
-                } else if(opt === "2") {
                     this.db.events[idx].backgroundColor = "#16a34a";
                     this.db.transacoes.forEach(t => { if(t.bookingId === id) t.confirmed = true; });
+                } else if(opt === "2") {
+                    const nVal = parseFloat(prompt("Novo Valor Total:"));
+                    if(!isNaN(nVal)) {
+                        this.db.events[idx].title = `${this.db.events[idx].title.split('|')[0]} | €${nVal}`;
+                        this.db.transacoes.forEach(t => { if(t.bookingId === id) t.val = nVal; });
+                    }
                 } else if(opt === "3") {
-                    if(confirm("Eliminar?")) { this.db.events = this.db.events.filter(e => e.id !== id); this.db.transacoes = this.db.transacoes.filter(t => t.bookingId !== id); }
-                } else if(opt === "4") {
-                    const orig = this.db.events[idx].extendedProps.type === 'mecanica' ? '#3b82f6' : '#f97316';
-                    this.db.events[idx].backgroundColor = orig;
-                    this.db.transacoes.forEach(t => { if(t.bookingId === id && !t.desc.includes('SINAL')) t.confirmed = false; });
+                    this.db.events = this.db.events.filter(e => e.id !== id);
+                    this.db.transacoes = this.db.transacoes.filter(t => t.bookingId !== id);
                 }
                 this.save();
             },
 
-            render() {
-                let r = 0, g = 0;
-                this.db.transacoes.forEach(t => { if(t.confirmed) t.type === 'E' ? r += t.val : g += t.val; });
-                document.getElementById('mini-saldo').innerText = `€ ${(r-g).toFixed(2)}`;
-                if(document.getElementById('fin-rec')) { document.getElementById('fin-rec').innerText = `€ ${r.toFixed(2)}`; document.getElementById('fin-gas').innerText = `€ ${g.toFixed(2)}`; }
-                
-                document.querySelectorAll('#mini-saldo, #fin-rec, #fin-gas').forEach(el => this.db.privacy ? el.classList.add('blur-value') : el.classList.remove('blur-value'));
-
-                document.getElementById('pecas-list').innerHTML = this.db.pecas.map(p => `
-                    <tr style="border-bottom: 1px solid #111;">
-                        <td style="padding: 15px;">
-                            <div style="font-weight:800; font-size:14px;">${p.n}</div>
-                            <div style="color:gray; font-size:11px;">${p.f || '-'}</div>
-                        </td>
-                        <td style="text-align: right; padding-right:15px;">
-                            <span onclick="App.togglePecaStatus(${p.id})" class="status-badge status-${p.status.toLowerCase().replace('ç', 'c')}">${p.status}</span>
-                        </td>
-                    </tr>
-                `).join('');
-                
-                const count = (s) => this.db.pecas.filter(p => p.status === s).length;
-                const ests = [{l:'Pend',c:'#fbbf24',k:'Pendente'}, {l:'Orç',c:'#34d399',k:'Orçamentada'}, {l:'Aceite',c:'#60a5fa',k:'Aceite'}, {l:'Enc',c:'#a78bfa',k:'Encomendada'}];
-                document.getElementById('dash-pecas-grid').innerHTML = ests.map(e => `<div style="background:#0a0a0a; padding:12px; border-radius:18px; text-align:center; border: 1px solid #111;"><p style="font-size:7px; color:${e.c}; font-weight:900; text-transform:uppercase;">${e.l}</p><p style="font-size:18px; font-weight:900;">${count(e.k)}</p></div>`).join('');
-                
-                document.getElementById('notes-list').innerHTML = this.db.notes.map(n => `<div style="display:flex; justify-content:space-between; background:#111; padding:12px; border-radius:12px; margin-bottom:8px; font-size:13px;"><span>${n.txt}</span><button onclick="App.delNote(${n.id})" style="color:var(--brand); border:none; background:none;"><i class="bi bi-check-circle"></i></button></div>`).join('');
-                document.getElementById('fin-history').innerHTML = this.db.transacoes.slice().reverse().slice(0,15).map(t => `<div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #111; font-size:11px; ${!t.confirmed ? 'opacity:0.3' : ''}"><span>${t.desc}</span><span style="color:${t.type==='E'?'#22c55e':'#ef4444'}; font-weight:900;">€${t.val.toFixed(2)}</span></div>`).join('');
-                document.getElementById('crm-grid').innerHTML = this.db.clientes.map(c => `<div class="glass-card" style="padding:15px;"><h4>${c.nome}</h4><p style="font-size:11px; color:gray; margin-bottom:10px;">${c.car}</p><button onclick="window.open('https://wa.me/${c.tel}')" class="btn-zinc" style="width:100%; color:#25d366; border-color:#25d366; padding:8px;">WhatsApp</button></div>`).join('');
+            importDB() { 
+                const i = document.createElement('input'); i.type = 'file'; i.accept = '.json';
+                i.onchange = e => { 
+                    const r = new FileReader(); 
+                    r.onload = ev => { 
+                        try {
+                            const d = JSON.parse(ev.target.result);
+                            if(d.events) { 
+                                this.db = d; 
+                                localStorage.setItem('POINT_OS_MASTER_DB', JSON.stringify(this.db));
+                                // Atualização em tempo real sem refresh
+                                this.render();
+                                this.refreshCalendar();
+                                if(document.getElementById('oficina-memo')) document.getElementById('oficina-memo').value = this.db.memo || "";
+                                alert("SISTEMA SINCRONIZADO COM SUCESSO!");
+                            }
+                        } catch(e) { alert("ERRO: Ficheiro de backup corrompido."); }
+                    }; 
+                    r.readAsText(e.target.files[0]); 
+                }; 
+                i.click(); 
             },
 
-            initChart() { const ctx = document.getElementById('fin-chart'); window.myChart = new Chart(ctx, { type: 'line', data: { labels: ['S1','S2','S3','S4'], datasets: [{ data: [0,0,0,0], borderColor: '#f97316', tension: 0.4 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } } } }); },
-            togglePecaStatus(id) { const p = this.db.pecas.find(x => x.id === id); const c = ['Pendente', 'Orçamentada', 'Aceite', 'Encomendada']; p.status = c[(c.indexOf(p.status) + 1) % c.length]; this.save(); },
+            exportDB() { 
+                const b = new Blob([JSON.stringify(this.db)],{type:'application/json'}); 
+                const a = document.createElement('a'); a.href=URL.createObjectURL(b); 
+                a.download=`backup_pointos_${new Date().toISOString().split('T')[0]}.json`; 
+                a.click(); 
+            },
+
+            switchCal(t) { 
+                this.currentView = t; 
+                document.getElementById('btn-cal-det').classList.toggle('active', t === 'detailing'); 
+                document.getElementById('btn-cal-mec').classList.toggle('active', t === 'mecanica'); 
+                this.refreshCalendar(); 
+            },
+
+            togglePecaStatus(id) { 
+                const p = this.db.pecas.find(x => x.id === id); 
+                const c = ['Pendente', 'Orçamentada', 'Aceite', 'Encomendada']; 
+                p.status = c[(c.indexOf(p.status) + 1) % 4]; 
+                this.save(); 
+            },
+
+            delPeca(id) { this.db.pecas = this.db.pecas.filter(x => x.id !== id); this.save(); },
             saveNote() { const i = document.getElementById('note-input'); if(i.value) { this.db.notes.push({ id: Date.now(), txt: i.value }); i.value = ''; this.save(); } },
             delNote(id) { this.db.notes = this.db.notes.filter(n => n.id !== id); this.save(); },
             saveMemo() { this.db.memo = document.getElementById('oficina-memo').value; localStorage.setItem('POINT_OS_MASTER_DB', JSON.stringify(this.db)); },
-            addClient() { const n = prompt("Nome:"); if(n) { this.db.clientes.push({ id: Date.now(), nome: n, car: prompt("Carro:"), tel: prompt("WhatsApp:") }); this.save(); } },
-            addPeca() { const n = prompt("Peça:"); const f = prompt("Fornecedor:"); if(n) { this.db.pecas.push({ id: Date.now(), n, f, status: 'Pendente' }); this.save(); } },
-            createBookingFromBtn(type) { const c = prompt("Viatura:"); if(c) this.processBooking(c, new Date().toISOString(), type); },
+            addClient() { const n = prompt("Nome do Cliente:"); if(n) { this.db.clientes.push({ id: Date.now(), nome: n, car: prompt("Marca/Modelo/Matrícula:"), tel: prompt("Contacto (WhatsApp/Tel):") }); this.save(); } },
+            addPeca() { const n = prompt("Nome da Peça / Referência:"); const f = prompt("Fornecedor:"); if(n) { this.db.pecas.push({ id: Date.now(), n, f, status: 'Pendente' }); this.save(); } },
+            createBookingFromBtn(t) { const c = prompt("Nome Cliente / Viatura:"); if(c) this.processBooking(c, new Date().toISOString(), t); },
             togglePrivacy() { this.db.privacy = !this.db.privacy; this.save(); },
-            exportDB() { const blob = new Blob([JSON.stringify(this.db)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup_point.json`; a.click(); },
-            transac(t) { const d = prompt("Descrição:"); const v = parseFloat(prompt("Valor:")); if(d && v) { this.db.transacoes.push({ id: Date.now(), type: t, cat: 'Manual', desc: d, val: v, date: new Date().toISOString().split('T')[0], confirmed: true }); this.save(); } }
+            transac(t) { const d = prompt("Descrição:"); const v = parseFloat(prompt("Valor (€):")); if(d && v) { this.db.transacoes.push({ id: Date.now(), type: t, desc: d, val: v, date: new Date().toISOString().split('T')[0], confirmed: true }); this.save(); } },
+            
+            initChart() { 
+                if(typeof Chart === 'undefined') return; 
+                const ctx = document.getElementById('fin-chart'); 
+                window.myChart = new Chart(ctx, { 
+                    type: 'line', 
+                    data: { 
+                        labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'], 
+                        datasets: [{ 
+                            label: 'Performance Financeira',
+                            data: [10, 25, 15, 40, 30, 55], 
+                            borderColor: '#f97316', 
+                            backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                            fill: true,
+                            tension: 0.4 
+                        }] 
+                    }, 
+                    options: { 
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { 
+                            y: { display: false },
+                            x: { grid: { display: false }, border: { display: false } }
+                        }
+                    } 
+                }); 
+            }
         };
 
-        const Nav = { to(id, el) { 
-            document.querySelectorAll('.tab-view').forEach(t => t.classList.add('hidden')); 
-            document.getElementById(id).classList.remove('hidden'); 
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); 
-            el.classList.add('active'); 
-            window.scrollTo(0,0);
-            if(id === 'tab-dash') { setTimeout(() => { window.calendar?.render(); }, 100); } 
-        } };
-        window.addEventListener('load', () => App.init());
+        const Nav = { 
+            to(id, el) { 
+                document.querySelectorAll('.tab-view').forEach(t => t.classList.add('hidden')); 
+                document.getElementById(id).classList.remove('hidden'); 
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); 
+                el.classList.add('active'); 
+                // Refazer render do calendário para evitar bugs de tamanho em tabs ocultas
+                if(id === 'tab-dash') { setTimeout(() => { window.calendar?.render(); }, 100); }
+            } 
+        };
+        
+        // Boot up
+        App.init();
     </script>
 </body>
 </html>
-
