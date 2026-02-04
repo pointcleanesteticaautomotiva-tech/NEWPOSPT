@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>POINT.OS | SUPREME V6.8</title>
+    <title>POINT.OS | SUPREME V6.9</title>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -41,7 +41,6 @@
         .cal-btn { flex: 1; padding: 8px; border-radius: 8px; font-size: 10px; font-weight: 900; text-transform: uppercase; text-align: center; cursor: pointer; color: #52525b; }
         .cal-btn.active { background: var(--brand); color: white; }
         
-        /* MODO PRIVACIDADE */
         .blur-value { filter: blur(12px) !important; transition: 0.3s; }
 
         @media (max-width: 1024px) { body { flex-direction: column; } .sidebar { width: 100%; height: auto; position: relative; border-bottom: 1px solid var(--border); padding: 10px 0; } .viewport { margin-left: 0; padding: 20px; } .grid-12 { display: block; } }
@@ -107,9 +106,8 @@
     </main>
 
     <script>
-        // MOTOR OFFLINE (SW)
         if ('serviceWorker' in navigator) {
-            const swCode = `const CACHE_NAME='point-v6.8'; const urls=['https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js','https://cdn.jsdelivr.net/npm/chart.js','https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css']; self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(urls)))); self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
+            const swCode = `const CACHE_NAME='point-v6.9'; const urls=['https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js','https://cdn.jsdelivr.net/npm/chart.js','https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css']; self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(urls)))); self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
             const blob = new Blob([swCode], { type: 'application/javascript' });
             navigator.serviceWorker.register(URL.createObjectURL(blob));
         }
@@ -167,6 +165,19 @@
                 this.save();
             },
 
+            // FUNÇÃO PARA ATUALIZAR DATA APÓS ARRASTAR
+            updateEventDate(event) {
+                const idx = this.db.events.findIndex(e => e.id === event.id);
+                if(idx !== -1) {
+                    this.db.events[idx].start = event.startStr;
+                    // Atualiza também a data nas transações financeiras ligadas a este agendamento
+                    this.db.transacoes.forEach(t => {
+                        if(t.bookingId === event.id) t.date = event.startStr.split('T')[0];
+                    });
+                    this.save();
+                }
+            },
+
             editBooking(event) {
                 const opt = prompt("1. Valor | 2. PAGO | 3. APAGAR | 4. REVERTER");
                 const id = event.id; const idx = this.db.events.findIndex(e => e.id === id);
@@ -187,16 +198,12 @@
             render() {
                 let r = 0, g = 0;
                 this.db.transacoes.forEach(t => { if(t.confirmed) t.type === 'E' ? r += t.val : g += t.val; });
-                
                 const miniSaldo = document.getElementById('mini-saldo');
                 const recEl = document.getElementById('fin-rec');
                 const gasEl = document.getElementById('fin-gas');
-
                 miniSaldo.innerText = `€ ${(r-g).toFixed(2)}`;
                 if(recEl) recEl.innerText = `€ ${r.toFixed(2)}`;
                 if(gasEl) gasEl.innerText = `€ ${g.toFixed(2)}`;
-
-                // APLICAR PRIVACIDADE
                 if(this.db.privacy) {
                     miniSaldo.classList.add('blur-value');
                     if(recEl) recEl.classList.add('blur-value');
@@ -210,7 +217,6 @@
                     document.getElementById('btn-privacy').innerText = "Privacidade: OFF";
                     document.getElementById('btn-privacy').style.color = "white";
                 }
-
                 document.getElementById('pecas-list').innerHTML = this.db.pecas.map(p => `<tr><td style="padding:15px;">${p.n}</td><td><span class="status-badge status-${p.status.toLowerCase()}">${p.status}</span></td></tr>`).join('');
                 document.getElementById('notes-list').innerHTML = this.db.notes.map(n => `<div style="background:#111; padding:10px; border-radius:10px; margin-bottom:5px;">${n.txt}</div>`).join('');
                 document.getElementById('fin-history').innerHTML = this.db.transacoes.slice().reverse().map(t => `<div style="padding:10px; font-size:10px; opacity:${t.confirmed?1:0.3}">${t.desc} - €${t.val.toFixed(2)}</div>`).join('');
@@ -220,9 +226,24 @@
 
             initCalendar() {
                 window.calendar = new FullCalendar.Calendar(document.getElementById('calendar-main'), {
-                    initialView: 'dayGridMonth', locale: 'pt-pt',
-                    selectable: true, select: (i) => { const t = prompt("Viatura:"); if(t) App.processBooking(t, i.startStr); },
-                    eventClick: (i) => App.editBooking(i.event)
+                    initialView: 'dayGridMonth', 
+                    locale: 'pt-pt',
+                    editable: true, // PERMITE MOVER
+                    droppable: true, // PERMITE SOLTAR
+                    eventLongPressDelay: 600, // TOQUE LONGO PARA INICIAR O ARRASTO NO IPHONE
+                    longPressDelay: 600,
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,listWeek'
+                    },
+                    selectable: true, 
+                    select: (i) => { const t = prompt("Viatura:"); if(t) App.processBooking(t, i.startStr); },
+                    eventClick: (i) => App.editBooking(i.event),
+                    // QUANDO O EVENTO É MOVIDO:
+                    eventDrop: (info) => {
+                        App.updateEventDate(info.event);
+                    }
                 });
                 window.calendar.render(); this.refreshCalendar();
             },
