@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="POINT.OS">
     
-    <title>POINT.OS | SUPREME V7.0</title>
+    <title>POINT.OS | SUPREME V7.1</title>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -16,42 +16,18 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        
-        :root { 
-            --brand: #f97316; 
-            --bg: #030303; 
-            --surface: #0a0a0a; 
-            --border: #1a1a1a; 
-            --zinc-400: #a1a1aa; 
-            --zinc-500: #71717a; 
-            --zinc-800: #27272a; 
-            --zinc-900: #18181b; 
-        }
-
+        :root { --brand: #f97316; --bg: #030303; --surface: #0a0a0a; --border: #1a1a1a; --zinc-500: #71717a; --zinc-800: #27272a; --zinc-900: #18181b; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body { background-color: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: #e5e7eb; display: flex; overflow-x: hidden; min-height: 100vh; }
-
-        /* Sidebar */
+        body { background-color: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: #e5e7eb; display: flex; overflow-x: hidden; }
         .sidebar { width: 260px; background: #000; border-right: 1px solid var(--border); height: 100vh; position: fixed; z-index: 50; padding: 40px 0; }
         .viewport { margin-left: 260px; width: 100%; min-height: 100vh; padding: 40px; }
-
         .nav-item { display: flex; align-items: center; padding: 14px 20px; color: #52525b; border-radius: 12px; margin: 4px 16px; cursor: pointer; transition: 0.2s; font-size: 14px; font-weight: 600; }
         .nav-item.active { background: #111; color: var(--brand); }
         .nav-item i { margin-right: 12px; font-size: 18px; }
-
-        /* Cards */
         .glass-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 24px; margin-bottom: 20px; }
         
-        /* BOTÕES E ESTADOS (AS CORES QUE FALTAVAM) */
-        .status-badge { 
-            padding: 6px 12px; 
-            border-radius: 99px; 
-            font-size: 9px; 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            border: 1px solid transparent;
-            display: inline-block;
-        }
+        /* ESTADOS E CORES */
+        .status-badge { padding: 6px 12px; border-radius: 99px; font-size: 9px; font-weight: 900; text-transform: uppercase; border: 1px solid transparent; cursor: pointer; display: inline-block; }
         .status-pendente { background: #422006; color: #fbbf24; border-color: #78350f; }
         .status-orcamentada { background: #064e3b; color: #34d399; border-color: #065f46; }
         .status-aceite { background: #1e3a8a; color: #60a5fa; border-color: #1e40af; }
@@ -60,23 +36,14 @@
 
         .btn-orange { background: var(--brand); color: white; border: none; padding: 12px 24px; border-radius: 16px; font-weight: 800; font-size: 11px; text-transform: uppercase; cursor: pointer; }
         .btn-zinc { background: var(--zinc-900); color: white; border: 1px solid var(--zinc-800); padding: 12px 24px; border-radius: 16px; font-weight: 800; font-size: 11px; text-transform: uppercase; cursor: pointer; }
-
-        /* Calendário */
-        #calendar-main { background: #000; border-radius: 20px; padding: 10px; min-height: 550px; border: 1px solid var(--border); }
-        .fc .fc-button { background: #111 !important; border: 1px solid #1a1a1a !important; color: white !important; font-size: 10px !important; font-weight: 800 !important; }
-        .fc .fc-button-active { background: var(--brand) !important; }
-
-        .flex { display: flex; }
-        .justify-between { justify-content: space-between; }
+        
         .grid { display: grid; gap: 20px; }
         .hidden { display: none !important; }
-        .blur-value { filter: blur(12px) !important; }
-
-        @media (max-width: 1024px) { 
-            body { flex-direction: column; } 
-            .sidebar { width: 100%; height: auto; position: relative; border-bottom: 1px solid var(--border); padding: 10px 0; } 
-            .viewport { margin-left: 0; padding: 20px; } 
-        }
+        #calendar-main { background: #000; border-radius: 20px; padding: 10px; min-height: 550px; border: 1px solid var(--border); }
+        
+        /* Display de Peças no Dash */
+        .peca-stat-card { background: #111; padding: 15px; border-radius: 16px; border: 1px solid #1a1a1a; text-align: center; }
+        .peca-stat-card span { display: block; font-size: 18px; font-weight: 900; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -85,7 +52,6 @@
         <div style="padding: 0 40px; margin-bottom: 30px; font-size: 24px; font-weight: 900; font-style: italic;">POINT<span style="color:var(--brand)">.</span>OS</div>
         <nav>
             <div onclick="Nav.to('tab-dash', this)" class="nav-item active"><i class="bi bi-speedometer2"></i> Dashboard</div>
-            <div onclick="Nav.to('tab-crm', this)" class="nav-item"><i class="bi bi-people"></i> CRM</div>
             <div onclick="Nav.to('tab-pecas', this)" class="nav-item"><i class="bi bi-cart4"></i> Peças</div>
             <div onclick="Nav.to('tab-fin', this)" class="nav-item"><i class="bi bi-graph-up-arrow"></i> Financeiro</div>
             <div onclick="Nav.to('tab-oficina', this)" class="nav-item"><i class="bi bi-wrench"></i> Oficina</div>
@@ -93,60 +59,53 @@
         <div style="position: absolute; bottom: 30px; width: 100%; padding: 0 20px; display: grid; gap: 8px;">
             <button onclick="App.exportDB()" class="btn-zinc" style="font-size: 8px;">Exportar Backup</button>
             <button onclick="App.importDB()" class="btn-zinc" style="font-size: 8px;">Importar Backup</button>
-            <button onclick="App.togglePrivacy()" id="btn-privacy" class="btn-zinc" style="font-size: 8px;">Privacidade: OFF</button>
         </div>
     </aside>
 
     <main class="viewport">
         <section id="tab-dash" class="tab-view">
-            <header class="flex justify-between" style="margin-bottom: 30px;">
+            <header class="grid" style="grid-template-columns: 1fr auto; margin-bottom: 30px; align-items: center;">
                 <h2 style="font-size: 28px; font-weight: 900; font-style: italic;">OPERAÇÕES</h2>
-                <div class="flex" style="gap: 12px;">
-                    <button onclick="App.createBooking('detailing')" class="btn-orange">+ Detailing</button>
-                    <button onclick="App.createBooking('mecanica')" class="btn-zinc">+ Mecânica</button>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="App.addPeca()" class="btn-zinc" style="font-size: 9px;">+ Registo Peça</button>
+                    <button class="btn-orange">Novo Serviço</button>
                 </div>
             </header>
+            
             <div class="grid" style="grid-template-columns: 2fr 1fr;">
                 <div class="glass-card"><div id="calendar-main"></div></div>
                 <div>
                     <div class="glass-card" style="text-align: center;">
-                        <p style="font-size: 10px; color: var(--brand); font-weight: 900;">SALDO ATUAL</p>
+                        <p style="font-size: 10px; color: var(--brand); font-weight: 900;">SALDO OFICINA</p>
                         <h2 id="mini-saldo" style="font-size: 32px; font-weight: 900;">€ 0.00</h2>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h3 style="font-size: 10px; color: var(--zinc-500); margin-bottom: 15px; text-transform: uppercase;">Estado de Peças</h3>
+                        <div id="dash-pecas-grid" class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+                            </div>
                     </div>
                 </div>
             </div>
         </section>
 
         <section id="tab-pecas" class="tab-view hidden">
-            <div class="flex justify-between" style="margin-bottom: 30px;">
-                <h2 style="font-weight: 900;">GESTÃO DE PEÇAS</h2>
-                <button onclick="App.addPeca()" class="btn-orange">+ Nova Peça</button>
-            </div>
+            <h2 style="margin-bottom: 20px;">LISTAGEM DE ENCOMENDAS</h2>
             <div class="glass-card" style="padding: 0;">
-                <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                    <thead style="font-size: 10px; color: var(--zinc-500); border-bottom: 1px solid #111;">
-                        <tr><th style="padding: 20px;">Artigo / Veículo</th><th style="padding: 20px;">Estado</th><th style="padding: 20px;">Ações</th></tr>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead style="font-size: 10px; color: var(--zinc-500); text-transform: uppercase; border-bottom: 1px solid #111;">
+                        <tr><th style="padding: 20px; text-align: left;">Artigo</th><th style="padding: 20px; text-align: left;">Estado</th><th style="padding: 20px; text-align: right;">Ação</th></tr>
                     </thead>
                     <tbody id="pecas-list"></tbody>
                 </table>
             </div>
         </section>
 
-        <section id="tab-crm" class="tab-view hidden"><h2>CRM Clientes</h2><div id="crm-grid" class="grid"></div></section>
-        <section id="tab-fin" class="tab-view hidden"><h2>Financeiro</h2><div id="fin-history" class="glass-card"></div></section>
-        <section id="tab-oficina" class="tab-view hidden"><h2>Oficina / Notas</h2><textarea id="oficina-memo" oninput="App.saveMemo()" style="width:100%; height:400px; background:#000; color:white; border:1px solid #222; padding:20px; border-radius:20px;"></textarea></section>
+        <section id="tab-fin" class="tab-view hidden"><h2>Financeiro</h2></section>
+        <section id="tab-oficina" class="tab-view hidden"><h2>Oficina</h2><textarea id="oficina-memo" oninput="App.saveMemo()" style="width:100%; height:400px; background:#000; color:white; border:1px solid #222; padding:20px; border-radius:20px;"></textarea></section>
     </main>
 
     <script>
-        // LOGICA DE FUNCIONAMENTO OFFLINE
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register(URL.createObjectURL(new Blob([`
-                const CACHE = 'point-v7.0';
-                self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./', './index.html']))));
-                self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
-            `], {type: 'text/javascript'})));
-        }
-
         const App = {
             db: JSON.parse(localStorage.getItem('POINT_DB')) || { events: [], pecas: [], transacoes: [], memo: "" },
             
@@ -156,99 +115,85 @@
             },
 
             render() {
-                // Renderizar Peças com Cores
-                const pecasTable = document.getElementById('pecas-list');
-                if(pecasTable) {
-                    pecasTable.innerHTML = this.db.pecas.map((p, idx) => `
+                // 1. Renderizar Lista de Peças
+                const list = document.getElementById('pecas-list');
+                if(list) {
+                    list.innerHTML = this.db.pecas.map((p, i) => `
                         <tr style="border-bottom: 1px solid #111;">
-                            <td style="padding: 20px;">${p.nome}</td>
-                            <td style="padding: 20px;">
-                                <span class="status-badge status-${p.status.toLowerCase()}" onclick="App.cyclePeca(${idx})">${p.status}</span>
-                            </td>
-                            <td style="padding: 20px;"><button onclick="App.deletePeca(${idx})" style="color:red; background:none; border:none;">Apagar</button></td>
+                            <td style="padding: 20px; font-weight: 600;">${p.nome}</td>
+                            <td style="padding: 20px;"><span class="status-badge status-${p.status.toLowerCase()}" onclick="App.cyclePeca(${i})">${p.status}</span></td>
+                            <td style="padding: 20px; text-align: right;"><i class="bi bi-trash" onclick="App.deletePeca(${i})" style="color: #333; cursor: pointer;"></i></td>
                         </tr>
                     `).join('');
                 }
+
+                // 2. Renderizar Display de Peças no Dashboard
+                const dashGrid = document.getElementById('dash-pecas-grid');
+                if(dashGrid) {
+                    const stats = { PENDENTE: 0, ENCOMENDADA: 0, ACEITE: 0, CONCLUIDO: 0 };
+                    this.db.pecas.forEach(p => { if(stats[p.status] !== undefined) stats[p.status]++; });
+                    
+                    dashGrid.innerHTML = `
+                        <div class="peca-stat-card" style="border-left: 4px solid #fbbf24;">Pendentes <span style="color:#fbbf24">${stats.PENDENTE}</span></div>
+                        <div class="peca-stat-card" style="border-left: 4px solid #a78bfa;">Encom. <span style="color:#a78bfa">${stats.ENCOMENDADA}</span></div>
+                        <div class="peca-stat-card" style="border-left: 4px solid #60a5fa;">Aceites <span style="color:#60a5fa">${stats.ACEITE}</span></div>
+                        <div class="peca-stat-card" style="border-left: 4px solid #4ade80;">Prontas <span style="color:#4ade80">${stats.CONCLUIDO}</span></div>
+                    `;
+                }
                 
-                // Saldo Financeiro
-                let saldo = 0;
-                this.db.transacoes.forEach(t => saldo += t.val);
-                document.getElementById('mini-saldo').innerText = `€ ${saldo.toFixed(2)}`;
                 if(document.getElementById('oficina-memo')) document.getElementById('oficina-memo').value = this.db.memo || "";
             },
 
             addPeca() {
-                const nome = prompt("Peça / Veículo:");
-                if(nome) {
-                    this.db.pecas.push({ nome, status: 'PENDENTE' });
-                    this.save();
-                }
+                const n = prompt("Nome da Peça / Veículo:");
+                if(n) { this.db.pecas.push({ nome: n, status: 'PENDENTE' }); this.save(); }
             },
 
             cyclePeca(idx) {
-                const estados = ['PENDENTE', 'ORCAMENTADA', 'ACEITE', 'ENCOMENDADA', 'CONCLUIDO'];
-                let curr = estados.indexOf(this.db.pecas[idx].status);
-                this.db.pecas[idx].status = estados[(curr + 1) % estados.length];
+                const s = ['PENDENTE', 'ORCAMENTADA', 'ACEITE', 'ENCOMENDADA', 'CONCLUIDO'];
+                let cur = s.indexOf(this.db.pecas[idx].status);
+                this.db.pecas[idx].status = s[(cur + 1) % s.length];
                 this.save();
             },
 
-            deletePeca(idx) { if(confirm("Apagar?")) { this.db.pecas.splice(idx, 1); this.save(); } },
-
+            deletePeca(idx) { if(confirm("Apagar registo?")) { this.db.pecas.splice(idx, 1); this.save(); } },
+            
             initCalendar() {
-                const calEl = document.getElementById('calendar-main');
-                if(calEl) {
-                    const calendar = new FullCalendar.Calendar(calEl, {
-                        initialView: 'dayGridMonth',
-                        locale: 'pt-pt',
-                        events: this.db.events,
-                        dateClick: (info) => {
-                            const t = prompt("Serviço:");
-                            if(t) {
-                                this.db.events.push({ title: t, start: info.dateStr, backgroundColor: '#f97316' });
-                                this.save();
-                                calendar.addEvent({ title: t, start: info.dateStr });
-                            }
-                        }
-                    });
-                    calendar.render();
-                }
+                const calendar = new FullCalendar.Calendar(document.getElementById('calendar-main'), {
+                    initialView: 'dayGridMonth',
+                    locale: 'pt-pt',
+                    events: this.db.events,
+                    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' }
+                });
+                calendar.render();
             },
 
             exportDB() {
                 const blob = new Blob([JSON.stringify(this.db)], {type: 'application/json'});
-                const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
+                a.href = URL.createObjectURL(blob);
                 a.download = 'backup_point.json';
                 a.click();
             },
 
             importDB() {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.onchange = e => {
-                    const reader = new FileReader();
-                    reader.onload = ev => {
-                        this.db = JSON.parse(ev.target.result);
-                        this.save();
-                        location.reload();
-                    };
-                    reader.readAsText(e.target.files[0]);
+                const i = document.createElement('input'); i.type = 'file';
+                i.onchange = e => {
+                    const r = new FileReader();
+                    r.onload = ev => { this.db = JSON.parse(ev.target.result); this.save(); location.reload(); };
+                    r.readAsText(e.target.files[0]);
                 };
-                input.click();
+                i.click();
             },
-            
             saveMemo() { this.db.memo = document.getElementById('oficina-memo').value; localStorage.setItem('POINT_DB', JSON.stringify(this.db)); }
         };
 
-        const Nav = {
-            to(id, el) {
-                document.querySelectorAll('.tab-view').forEach(t => t.classList.add('hidden'));
-                document.getElementById(id).classList.remove('hidden');
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                el.classList.add('active');
-            }
-        };
+        const Nav = { to(id, el) { 
+            document.querySelectorAll('.tab-view').forEach(t => t.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+        }};
 
         window.onload = () => { App.render(); App.initCalendar(); };
     </script>
