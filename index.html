@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="POINT.OS">
     
-    <title>POINT.OS | SUPREME V7.2</title>
+    <title>POINT.OS | SUPREME V7.3</title>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -30,7 +30,12 @@
 
         .glass-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 24px; margin-bottom: 20px; }
         
-        /* ESTADOS COLORIDOS */
+        /* CALENDARIO SELECTOR */
+        .cal-selector { display: flex; background: #111; border: 1px solid #1a1a1a; padding: 4px; border-radius: 12px; margin-bottom: 15px; }
+        .cal-btn { flex: 1; padding: 8px; border-radius: 8px; font-size: 10px; font-weight: 900; text-transform: uppercase; text-align: center; cursor: pointer; color: #52525b; }
+        .cal-btn.active { background: var(--brand); color: white; }
+
+        /* ESTADOS */
         .status-badge { padding: 6px 12px; border-radius: 99px; font-size: 9px; font-weight: 900; text-transform: uppercase; border: 1px solid transparent; cursor: pointer; display: inline-block; }
         .status-pendente { background: #422006; color: #fbbf24; border-color: #78350f; }
         .status-orcamentada { background: #064e3b; color: #34d399; border-color: #065f46; }
@@ -41,18 +46,12 @@
         .btn-orange { background: var(--brand); color: white; border: none; padding: 12px 24px; border-radius: 16px; font-weight: 800; font-size: 11px; text-transform: uppercase; cursor: pointer; }
         .btn-zinc { background: var(--zinc-900); color: white; border: 1px solid var(--zinc-800); padding: 12px 24px; border-radius: 16px; font-weight: 800; font-size: 11px; text-transform: uppercase; cursor: pointer; }
         
-        #calendar-main { background: #000; border-radius: 20px; padding: 10px; min-height: 550px; border: 1px solid var(--border); }
+        #calendar-main { background: #000; border-radius: 20px; padding: 10px; min-height: 500px; border: 1px solid var(--border); }
         .blur-value { filter: blur(12px) !important; }
         .hidden { display: none !important; }
         .grid { display: grid; gap: 20px; }
 
-        /* Estilos de Tabelas e CRM */
-        table { width: 100%; border-collapse: collapse; }
-        th { font-size: 10px; color: var(--zinc-500); text-transform: uppercase; padding: 20px; text-align: left; border-bottom: 1px solid #111; }
-        td { padding: 15px 20px; border-bottom: 1px solid #0a0a0a; }
-
-        .peca-stat-card { background: #0a0a0a; padding: 15px; border-radius: 16px; border: 1px solid #1a1a1a; text-align: center; }
-        .peca-stat-card span { display: block; font-size: 20px; font-weight: 900; margin-top: 5px; }
+        input, textarea { background: #000; border: 1px solid var(--border); color: white; padding: 10px; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -76,19 +75,35 @@
     <main class="viewport">
         <section id="tab-dash" class="tab-view">
             <header class="flex justify-between" style="display:flex; justify-content:space-between; margin-bottom: 30px;">
-                <h2 style="font-size: 28px; font-weight: 900; font-style: italic;">OPERACIONAL</h2>
+                <h2 style="font-size: 28px; font-weight: 900; font-style: italic;">OPERAÇÕES</h2>
                 <div style="display: flex; gap: 12px;">
-                    <button onclick="App.addQuickBooking('DETAILING')" class="btn-orange">+ Detailing</button>
-                    <button onclick="App.addQuickBooking('MECANICA')" class="btn-zinc">+ Mecânica</button>
+                    <button onclick="App.addBooking('DETAILING')" class="btn-orange">+ Detailing</button>
+                    <button onclick="App.addBooking('MECANICA')" class="btn-zinc">+ Mecânica</button>
                 </div>
             </header>
-            <div class="grid" style="grid-template-columns: 2fr 1fr;">
-                <div class="glass-card"><div id="calendar-main"></div></div>
+            <div class="grid" style="grid-template-columns: 2.2fr 1fr;">
+                <div class="glass-card">
+                    <div class="cal-selector">
+                        <div id="btn-cal-det" onclick="App.switchCal('DETAILING')" class="cal-btn active">Detailing</div>
+                        <div id="btn-cal-mec" onclick="App.switchCal('MECANICA')" class="cal-btn">Mecânica</div>
+                    </div>
+                    <div id="calendar-main"></div>
+                </div>
                 <div>
                     <div class="glass-card" style="text-align: center;">
                         <p style="font-size: 10px; color: var(--brand); font-weight: 900;">SALDO ATUAL</p>
                         <h2 id="mini-saldo" style="font-size: 32px; font-weight: 900;">€ 0.00</h2>
                     </div>
+                    
+                    <div class="glass-card">
+                        <h3 style="font-size: 10px; color: var(--zinc-500); margin-bottom: 12px; text-transform: uppercase;">Task.OS / Notas</h3>
+                        <div class="flex" style="display:flex; gap: 8px; margin-bottom: 15px;">
+                            <input type="text" id="note-input" placeholder="Anotar..." style="flex:1;">
+                            <button onclick="App.addNote()" class="btn-orange">+</button>
+                        </div>
+                        <div id="notes-list" style="max-height: 150px; overflow-y: auto;"></div>
+                    </div>
+
                     <div class="glass-card">
                         <h3 style="font-size: 10px; color: var(--zinc-500); margin-bottom: 15px; text-transform: uppercase;">Estado de Peças</h3>
                         <div id="dash-pecas-grid" class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px;"></div>
@@ -111,8 +126,8 @@
                 <button onclick="App.addPeca()" class="btn-orange">+ Registar Peça</button>
             </div>
             <div class="glass-card" style="padding: 0;">
-                <table>
-                    <thead><tr><th>Artigo</th><th>Viatura</th><th>Estado</th><th>Ação</th></tr></thead>
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead><tr><th style="padding:20px;">Artigo</th><th style="padding:20px;">Estado</th><th style="padding:20px;">Ação</th></tr></thead>
                     <tbody id="pecas-list"></tbody>
                 </table>
             </div>
@@ -130,159 +145,107 @@
 
         <section id="tab-oficina" class="tab-view hidden">
             <h2>NOTAS DA OFICINA</h2>
-            <textarea id="oficina-memo" oninput="App.saveMemo()" style="width:100%; height:500px; background:#000; color:white; border:1px solid #1a1a1a; padding:30px; border-radius:24px; font-size:16px;"></textarea>
+            <textarea id="oficina-memo" oninput="App.saveMemo()" style="width:100%; height:500px; background:#000; color:white; border:1px solid #1a1a1a; padding:30px; border-radius:24px;"></textarea>
         </section>
     </main>
 
     <script>
         const App = {
-            db: JSON.parse(localStorage.getItem('POINT_DB')) || { 
-                events: [], pecas: [], transacoes: [], memo: "", clientes: [], privacy: false 
+            db: JSON.parse(localStorage.getItem('POINT_DB_V7')) || { 
+                events: [], pecas: [], transacoes: [], memo: "", clientes: [], privacy: false, notes: [], currentView: 'DETAILING' 
             },
             
-            save() { 
-                localStorage.setItem('POINT_DB', JSON.stringify(this.db)); 
-                this.render(); 
-            },
+            save() { localStorage.setItem('POINT_DB_V7', JSON.stringify(this.db)); this.render(); },
 
             render() {
-                // Saldo e Privacidade
+                // Saldo
                 let r = 0, g = 0;
-                this.db.transacoes.forEach(t => { if(t.type === 'E') r += t.val; else g += t.val; });
-                const saldo = r - g;
-                const elSaldo = document.getElementById('mini-saldo');
-                elSaldo.innerText = `€ ${saldo.toFixed(2)}`;
-                if(this.db.privacy) elSaldo.classList.add('blur-value'); else elSaldo.classList.remove('blur-value');
-                
+                this.db.transacoes.forEach(t => t.type === 'E' ? r += t.val : g += t.val);
+                const saldoEl = document.getElementById('mini-saldo');
+                saldoEl.innerText = `€ ${(r-g).toFixed(2)}`;
+                if(this.db.privacy) saldoEl.classList.add('blur-value'); else saldoEl.classList.remove('blur-value');
                 if(document.getElementById('fin-rec')) document.getElementById('fin-rec').innerText = `€ ${r.toFixed(2)}`;
                 if(document.getElementById('fin-gas')) document.getElementById('fin-gas').innerText = `€ ${g.toFixed(2)}`;
 
-                // Display Peças no Dash
+                // Notas
+                const notesList = document.getElementById('notes-list');
+                if(notesList) notesList.innerHTML = this.db.notes.map((n, i) => `
+                    <div style="background:#111; padding:10px; border-radius:10px; margin-bottom:5px; font-size:12px; display:flex; justify-content:space-between;">
+                        ${n.txt} <i class="bi bi-x" onclick="App.delNote(${i})" style="cursor:pointer; color:red;"></i>
+                    </div>
+                `).join('');
+
+                // Peças
                 const dashPecas = document.getElementById('dash-pecas-grid');
                 if(dashPecas) {
                     const s = { PENDENTE: 0, ENCOMENDADA: 0, ACEITE: 0, CONCLUIDO: 0 };
-                    this.db.pecas.forEach(p => { if(s[p.status] !== undefined) s[p.status]++; });
-                    dashPecas.innerHTML = `
-                        <div class="peca-stat-card">Pendentes <span style="color:#fbbf24">${s.PENDENTE}</span></div>
-                        <div class="peca-stat-card">Encom. <span style="color:#a78bfa">${s.ENCOMENDADA}</span></div>
-                        <div class="peca-stat-card">Aceites <span style="color:#60a5fa">${s.ACEITE}</span></div>
-                        <div class="peca-stat-card">Prontas <span style="color:#4ade80">${s.CONCLUIDO}</span></div>
-                    `;
+                    this.db.pecas.forEach(p => s[p.status]++);
+                    dashPecas.innerHTML = Object.keys(s).map(k => `<div class="peca-stat-card">${k.toLowerCase()} <span>${s[k]}</span></div>`).join('');
                 }
 
-                // Lista de Peças
-                const list = document.getElementById('pecas-list');
-                if(list) {
-                    list.innerHTML = this.db.pecas.map((p, i) => `
-                        <tr>
-                            <td>${p.nome}</td>
-                            <td>${p.viatura || '---'}</td>
-                            <td><span class="status-badge status-${p.status.toLowerCase()}" onclick="App.cyclePeca(${i})">${p.status}</span></td>
-                            <td><i class="bi bi-trash" onclick="App.deletePeca(${i})"></i></td>
-                        </tr>
-                    `).join('');
-                }
+                const pecasTable = document.getElementById('pecas-list');
+                if(pecasTable) pecasTable.innerHTML = this.db.pecas.map((p, i) => `
+                    <tr><td style="padding:20px;">${p.nome}</td><td><span class="status-badge status-${p.status.toLowerCase()}" onclick="App.cyclePeca(${i})">${p.status}</span></td><td style="text-align:right;"><i class="bi bi-trash" onclick="App.deletePeca(${i})"></i></td></tr>
+                `).join('');
 
                 // CRM
-                const crmGrid = document.getElementById('crm-grid');
-                if(crmGrid) {
-                    crmGrid.innerHTML = this.db.clientes.map((c, i) => `
-                        <div class="glass-card">
-                            <h4>${c.nome}</h4>
-                            <p style="font-size:12px; color:gray;">${c.tel} | ${c.carro}</p>
-                            <button onclick="App.delClient(${i})" style="background:none; border:none; color:red; font-size:10px; margin-top:10px;">Remover</button>
-                        </div>
-                    `).join('');
-                }
-
-                document.getElementById('btn-privacy').innerText = `Privacidade: ${this.db.privacy ? 'ON' : 'OFF'}`;
+                const crm = document.getElementById('crm-grid');
+                if(crm) crm.innerHTML = this.db.clientes.map((c, i) => `<div class="glass-card"><h4>${c.nome}</h4><p>${c.tel}</p></div>`).join('');
             },
 
-            // FUNÇÕES DE NEGÓCIO
-            addQuickBooking(tipo) {
-                const cli = prompt("Cliente / Viatura:");
-                const val = parseFloat(prompt("Valor Estimado (€):") || 0);
+            switchCal(type) {
+                this.db.currentView = type;
+                document.getElementById('btn-cal-det').classList.toggle('active', type === 'DETAILING');
+                document.getElementById('btn-cal-mec').classList.toggle('active', type === 'MECANICA');
+                this.refreshCalendar();
+            },
+
+            refreshCalendar() {
+                window.calendar.removeAllEvents();
+                const filtered = this.db.events.filter(e => e.extendedProps?.tipo === this.db.currentView);
+                window.calendar.addEventSource(filtered);
+            },
+
+            addBooking(tipo) {
+                const cli = prompt("Cliente:");
+                const val = parseFloat(prompt("Valor (€):") || 0);
                 if(cli) {
                     const id = Date.now();
-                    this.db.events.push({ id, title: `[${tipo}] ${cli} | €${val}`, start: new Date().toISOString().split('T')[0], backgroundColor: tipo === 'MECANICA' ? '#3b82f6' : '#f97316' });
-                    this.db.transacoes.push({ id, type: 'E', val, desc: cli });
+                    const evt = { id, title: `${cli} | €${val}`, start: new Date().toISOString().split('T')[0], backgroundColor: tipo === 'MECANICA' ? '#3b82f6' : '#f97316', extendedProps: { tipo, val } };
+                    this.db.events.push(evt);
+                    this.db.transacoes.push({ type: 'E', val, desc: cli });
                     this.save();
-                    location.reload(); 
+                    this.refreshCalendar();
                 }
             },
 
-            addPeca() {
-                const nome = prompt("Peça:");
-                const viat = prompt("Viatura:");
-                if(nome) { this.db.pecas.push({ nome, viatura: viat, status: 'PENDENTE' }); this.save(); }
-            },
-
-            cyclePeca(i) {
-                const s = ['PENDENTE', 'ORCAMENTADA', 'ACEITE', 'ENCOMENDADA', 'CONCLUIDO'];
-                this.db.pecas[i].status = s[(s.indexOf(this.db.pecas[i].status) + 1) % s.length];
-                this.save();
-            },
-
-            deletePeca(i) { if(confirm("Apagar?")) { this.db.pecas.splice(i,1); this.save(); } },
-
-            addClient() {
-                const nome = prompt("Nome:");
-                const tel = prompt("Telemóvel:");
-                const carro = prompt("Viatura principal:");
-                if(nome) { this.db.clientes.push({ nome, tel, carro }); this.save(); }
-            },
-
-            delClient(i) { if(confirm("Apagar cliente?")) { this.db.clientes.splice(i,1); this.save(); } },
-
+            addNote() { const i = document.getElementById('note-input'); if(i.value) { this.db.notes.push({ txt: i.value }); i.value = ''; this.save(); } },
+            delNote(i) { this.db.notes.splice(i,1); this.save(); },
+            addPeca() { const n = prompt("Artigo:"); if(n) { this.db.pecas.push({ nome: n, status: 'PENDENTE' }); this.save(); } },
+            cyclePeca(i) { const s = ['PENDENTE', 'ORCAMENTADA', 'ACEITE', 'ENCOMENDADA', 'CONCLUIDO']; this.db.pecas[i].status = s[(s.indexOf(this.db.pecas[i].status) + 1) % s.length]; this.save(); },
+            deletePeca(i) { this.db.pecas.splice(i,1); this.save(); },
+            addClient() { const n = prompt("Nome:"); if(n) { this.db.clientes.push({ nome: n, tel: prompt("Tel:") }); this.save(); } },
             togglePrivacy() { this.db.privacy = !this.db.privacy; this.save(); },
-
-            manualTrans(tipo) {
-                const v = parseFloat(prompt("Valor (€):"));
-                const d = prompt("Descrição:");
-                if(v) { this.db.transacoes.push({ type: tipo, val: v, desc: d }); this.save(); }
-            },
-
-            saveMemo() { this.db.memo = document.getElementById('oficina-memo').value; localStorage.setItem('POINT_DB', JSON.stringify(this.db)); },
-
-            // BACKUP
-            exportDB() {
-                const blob = new Blob([JSON.stringify(this.db)], {type: 'application/json'});
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = 'backup_point_supreme.json';
-                a.click();
-            },
-
-            importDB() {
-                const i = document.createElement('input'); i.type = 'file';
-                i.onchange = e => {
-                    const r = new FileReader();
-                    r.onload = ev => { this.db = JSON.parse(ev.target.result); this.save(); location.reload(); };
-                    r.readAsText(e.target.files[0]);
-                };
-                i.click();
-            }
+            manualTrans(t) { const v = parseFloat(prompt("Valor:")); if(v) { this.db.transacoes.push({ type: t, val: v, desc: prompt("Desc:") }); this.save(); } },
+            saveMemo() { this.db.memo = document.getElementById('oficina-memo').value; localStorage.setItem('POINT_DB_V7', JSON.stringify(this.db)); },
+            exportDB() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(this.db)], {type:'application/json'})); a.download = 'backup.json'; a.click(); },
+            importDB() { const i = document.createElement('input'); i.type = 'file'; i.onchange = e => { const r = new FileReader(); r.onload = ev => { this.db = JSON.parse(ev.target.result); this.save(); location.reload(); }; r.readAsText(e.target.files[0]); }; i.click(); }
         };
 
-        const Nav = {
-            to(id, el) {
-                document.querySelectorAll('.tab-view').forEach(t => t.classList.add('hidden'));
-                document.getElementById(id).classList.remove('hidden');
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                el.classList.add('active');
-            }
-        };
+        const Nav = { to(id, el) { 
+            document.querySelectorAll('.tab-view').forEach(t => t.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+            if(id === 'tab-dash') setTimeout(() => window.calendar.render(), 10);
+        }};
 
         window.onload = () => {
             App.render();
-            const calEl = document.getElementById('calendar-main');
-            const calendar = new FullCalendar.Calendar(calEl, {
-                initialView: 'dayGridMonth',
-                locale: 'pt-pt',
-                events: App.db.events,
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth' }
+            window.calendar = new FullCalendar.Calendar(document.getElementById('calendar-main'), {
+                initialView: 'dayGridMonth', locale: 'pt-pt', events: App.db.events.filter(e => e.extendedProps?.tipo === App.db.currentView)
             });
-            calendar.render();
+            window.calendar.render();
         };
     </script>
 </body>
