@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>POINT.OS | SUPREME V7.3</title>
+    <title>POINT.OS | SUPREME V8.0</title>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -18,7 +18,6 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body { background-color: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: #e5e7eb; display: flex; min-height: 100vh; }
         
-        /* SIDEBAR MANTIDA LATERAL */
         .sidebar { width: 240px; background: #000; border-right: 1px solid var(--border); height: 100vh; position: sticky; top: 0; z-index: 50; padding: 40px 0; flex-shrink: 0; }
         .viewport { flex-grow: 1; padding: 40px; width: calc(100% - 240px); }
         
@@ -41,25 +40,17 @@
         .status-aceite { background: #1e3a8a; color: #60a5fa; border-color: #1e40af; }
         .status-encomendada { background: #4c1d95; color: #a78bfa; border-color: #5b21b6; }
 
-        /* CALENDÁRIO COM ESPAÇAMENTO */
         #calendar-main { background: #000; border-radius: 20px; padding: 15px; min-height: 600px; border: 1px solid var(--border); }
         .fc .fc-button { background: #111 !important; border: 1px solid #1a1a1a !important; color: white !important; font-size: 9px !important; font-weight: 800 !important; text-transform: uppercase; }
         .fc .fc-button-active { background: var(--brand) !important; border-color: var(--brand) !important; }
-        .fc .fc-toolbar-title { font-size: 16px !important; font-weight: 800; }
-        
-        .cal-selector { display: flex; background: #111; border: 1px solid #1a1a1a; padding: 4px; border-radius: 12px; margin-bottom: 20px; }
-        .cal-btn { flex: 1; padding: 12px; border-radius: 8px; font-size: 10px; font-weight: 900; text-transform: uppercase; text-align: center; cursor: pointer; color: #52525b; }
-        .cal-btn.active { background: var(--brand); color: white; }
         
         .blur-value { filter: blur(12px) !important; transition: 0.3s; }
 
-        /* RESPONSIVIDADE PARA IPHONE SEM PERDER O DESIGN LATERAL */
         @media (max-width: 1024px) { 
             body { flex-direction: column; }
             .sidebar { width: 100%; height: auto; position: relative; padding: 20px 0; border-right: none; border-bottom: 1px solid var(--border); }
             .viewport { width: 100%; padding: 20px; }
             .grid-12 { display: block; }
-            .glass-card { margin-bottom: 20px; }
         }
     </style>
 </head>
@@ -93,31 +84,48 @@
             
             <div class="grid-12">
                 <div class="glass-card" style="grid-column: span 8;">
-                    <div class="cal-selector">
-                        <div id="btn-cal-det" onclick="App.switchCal('detailing')" class="cal-btn active">Detailing</div>
-                        <div id="btn-cal-mec" onclick="App.switchCal('mecanica')" class="cal-btn">Mecânica</div>
-                    </div>
                     <div id="calendar-main"></div>
                 </div>
 
                 <div style="grid-column: span 4;">
-                    <div class="glass-card" style="text-align: center; border: 2px solid rgba(249,115,22,0.2);">
+                    <div class="glass-card" style="border: 1px solid rgba(249,115,22,0.3);">
+                        <h3 style="font-size: 10px; color: var(--brand); margin-bottom: 12px; text-transform: uppercase;">⚡ Foco para Amanhã</h3>
+                        <div id="auto-tasks"></div>
+                    </div>
+
+                    <div class="glass-card">
                         <p style="font-size: 10px; font-weight: 900; color: var(--brand); margin-bottom: 5px;">SALDO DISPONÍVEL</p>
                         <h2 id="mini-saldo" style="font-size: 32px; font-weight: 900;">€ 0.00</h2>
                     </div>
+
                     <div class="glass-card">
-                        <h3 style="font-size: 10px; color: var(--zinc-500); margin-bottom: 12px; text-transform: uppercase;">Task.OS / Notas</h3>
+                        <h3 style="font-size: 10px; color: var(--zinc-500); margin-bottom: 12px; text-transform: uppercase;">Lembretes Rápidos</h3>
                         <div class="flex" style="gap: 8px; margin-bottom: 15px;">
                             <input type="text" id="note-input" placeholder="Anotar..." style="flex:1; background: #000; border: 1px solid var(--zinc-800); border-radius: 8px; padding: 10px; color: white;">
                             <button onclick="App.saveNote()" class="btn-orange">+</button>
                         </div>
-                        <div id="notes-list" style="max-height: 200px; overflow-y: auto;"></div>
-                        <div style="margin-top: 25px; border-top: 1px solid #111; padding-top: 20px;">
-                            <p style="font-size: 10px; color: var(--zinc-500); text-align: center; margin-bottom: 15px; text-transform: uppercase;">Estado de Peças</p>
-                            <div id="dash-pecas-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
-                        </div>
+                        <div id="notes-list"></div>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <section id="tab-fin" class="tab-view hidden">
+            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 30px; gap: 20px;">
+                <div class="glass-card"><h3>Receitas</h3><h2 id="fin-rec" style="color: #22c55e;">€ 0.00</h2></div>
+                <div class="glass-card"><h3>Gastos</h3><h2 id="fin-gas" style="color: #ef4444;">€ 0.00</h2></div>
+                <button onclick="App.transac('E')" class="btn-zinc" style="color: #22c55e; border-color: #22c55e;">+ Entrada</button>
+                <button onclick="App.transac('S')" class="btn-zinc" style="color: #ef4444; border-color: #ef4444;">- Saída</button>
+            </div>
+
+            <div class="glass-card" style="border: 1px dashed var(--brand); background: rgba(249,115,22,0.03); margin-bottom: 24px;">
+                <h3 style="font-size: 11px; color: var(--brand);"><i class="bi bi-robot"></i> INSIGHT GEMINI</h3>
+                <p id="gemini-insight" style="font-size: 13px; margin-top: 10px; line-height: 1.5; color: var(--zinc-400);">A analisar...</p>
+            </div>
+
+            <div class="grid" style="grid-template-columns: 2fr 1fr; gap: 20px;">
+                <div class="glass-card" style="height: 400px;"><canvas id="fin-chart"></canvas></div>
+                <div class="glass-card" style="height: 400px; overflow-y: auto;"><div id="fin-history"></div></div>
             </div>
         </section>
 
@@ -130,7 +138,7 @@
             <div class="flex justify-between" style="margin-bottom:30px;"><h2>Gestão de Peças</h2><button onclick="App.addPeca()" class="btn-zinc" style="background:#2563eb">+ Nova Peça</button></div>
             <div class="glass-card" style="padding: 0; overflow-x: auto;">
                 <table style="width: 100%; min-width: 600px; border-collapse: collapse;">
-                    <thead style="font-size: 10px; color: var(--zinc-500); text-transform: uppercase; border-bottom: 1px solid #111;">
+                    <thead style="font-size: 10px; color: var(--zinc-500); text-transform: uppercase;">
                         <tr><th style="padding:20px; text-align:left;">Artigo</th><th style="padding:20px; text-align:left;">Fornecedor</th><th style="padding:20px; text-align:center;">Estado</th><th style="padding:20px; text-align:right;">Ação</th></tr>
                     </thead>
                     <tbody id="pecas-list"></tbody>
@@ -138,39 +146,30 @@
             </div>
         </section>
 
-        <section id="tab-fin" class="tab-view hidden">
-            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 30px; gap: 20px;">
-                <div class="glass-card"><h3>Receitas</h3><h2 id="fin-rec" style="color: #22c55e;">€ 0.00</h2></div>
-                <div class="glass-card"><h3>Gastos</h3><h2 id="fin-gas" style="color: #ef4444;">€ 0.00</h2></div>
-                <button onclick="App.transac('E')" class="btn-zinc" style="color: #22c55e; border-color: #22c55e;">+ Entrada</button>
-                <button onclick="App.transac('S')" class="btn-zinc" style="color: #ef4444; border-color: #ef4444;">- Saída</button>
-            </div>
-            <div class="grid" style="grid-template-columns: 2fr 1fr; gap: 20px;">
-                <div class="glass-card" style="height: 400px;"><canvas id="fin-chart"></canvas></div>
-                <div class="glass-card" style="height: 400px; overflow-y: auto;"><div id="fin-history"></div></div>
-            </div>
-        </section>
-
         <section id="tab-oficina" class="tab-view hidden">
             <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="glass-card"><h3>Trabalhos Ativos</h3><div id="oficina-servicos"></div></div>
-                <div class="glass-card"><h3>Memo / Notas Técnicas</h3><textarea id="oficina-memo" oninput="App.saveMemo()" style="width:100%; height:500px; background:#000; color:white; border:1px solid #222; padding:20px; font-family: monospace; border-radius: 12px;"></textarea></div>
+                <div class="glass-card"><h3>Memo Técnico</h3><textarea id="oficina-memo" oninput="App.saveMemo()" style="width:100%; height:500px; background:#000; color:white; border:1px solid #222; padding:20px; font-family: monospace; border-radius: 12px;"></textarea></div>
             </div>
         </section>
     </main>
 
     <script>
         const App = {
-            storageKey: 'POINT_OS_MASTER_DB',
+            storageKey: 'POINT_OS_MASTER_DB_V8',
             db: {},
-            currentView: 'detailing',
+            Categorias: {
+                PEÇAS: ['filtro', 'óleo', 'pastilhas', 'disco', 'suspensão', 'peça', 'distribuição', 'kit', 'pneu', 'braço'],
+                CONSUMÍVEIS: ['detergente', 'cera', 'pincel', 'pano', 'shampoo', 'polimento', 'composto', 'luva', 'adblue'],
+                FIXO: ['renda', 'luz', 'água', 'internet', 'seguro', 'contabilista'],
+                MARKETING: ['ads', 'facebook', 'instagram', 'cartão', 'flyer', 'logo']
+            },
 
             init() { 
                 this.loadDB();
-                this.render(); 
                 this.initCalendar(); 
-                this.initChart(); 
-                if(document.getElementById('oficina-memo')) document.getElementById('oficina-memo').value = this.db.memo || "";
+                this.render(); 
+                this.initChart();
             },
 
             loadDB() {
@@ -179,52 +178,110 @@
                 this.db = raw ? { ...template, ...JSON.parse(raw) } : template;
             },
 
-            save() { localStorage.setItem(this.storageKey, JSON.stringify(this.db)); this.render(); this.refreshCalendar(); },
+            save() { 
+                localStorage.setItem(this.storageKey, JSON.stringify(this.db)); 
+                this.render(); 
+            },
 
-            switchCal(type) { this.currentView = type; document.getElementById('btn-cal-det').classList.toggle('active', type === 'detailing'); document.getElementById('btn-cal-mec').classList.toggle('active', type === 'mecanica'); this.refreshCalendar(); },
-
-            refreshCalendar() {
-                if(!window.calendar) return;
-                window.calendar.removeAllEvents();
-                const filtered = this.db.events.filter(e => {
-                    const isMec = e.title.includes('(MECANICA)');
-                    return this.currentView === 'mecanica' ? isMec : !isMec;
+            // CALENDÁRIO COM MULTI-DIA E GRAVAÇÃO
+            initCalendar() {
+                const calEl = document.getElementById('calendar-main');
+                window.calendar = new FullCalendar.Calendar(calEl, {
+                    initialView: 'dayGridMonth', locale: 'pt-pt',
+                    editable: true, selectable: true,
+                    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listWeek' },
+                    events: this.db.events,
+                    select: (i) => { const t = prompt("Viatura:"); if(t) this.processBooking(t, i.startStr, null, i.endStr); },
+                    eventClick: (i) => this.editBooking(i.event),
+                    eventDrop: (info) => this.updateEventDates(info.event),
+                    eventResize: (info) => this.updateEventDates(info.event)
                 });
-                window.calendar.addEventSource(filtered);
+                window.calendar.render();
             },
 
-            processBooking(title, startISO, forceType = null) {
-                const type = forceType || this.currentView;
+            updateEventDates(event) {
+                const idx = this.db.events.findIndex(e => e.id === event.id);
+                if(idx !== -1) {
+                    this.db.events[idx].start = event.startStr;
+                    this.db.events[idx].end = event.endStr;
+                    this.db.transacoes.forEach(t => { if(t.bookingId === event.id) t.date = event.startStr.split('T')[0]; });
+                    this.save();
+                }
+            },
+
+            processBooking(title, startISO, forceType = null, endISO = null) {
+                const type = forceType || (confirm("É Mecânica?") ? 'mecanica' : 'detailing');
                 const total = parseFloat(prompt("Valor Total Bruto (€):") || 0);
-                const sinal = parseFloat(prompt("Valor do SINAL (€):") || 0);
-                let lucroTotal = total;
-                if(type === 'mecanica') lucroTotal = parseFloat(prompt("LUCRO LÍQUIDO ESTIMADO (€):") || 0);
+                const sinal = parseFloat(prompt("Valor SINAL (€):") || 0);
                 const id = Date.now().toString();
-                const finalTitle = type === 'mecanica' ? `${title} (MECANICA)` : title;
-                if(sinal > 0) {
-                    this.db.transacoes.push({ id: id+'_S', bookingId: id, type: 'E', cat: type, desc: `SINAL: ${finalTitle}`, val: sinal, date: startISO.split('T')[0], confirmed: true });
-                }
-                this.db.transacoes.push({ id: id, bookingId: id, type: 'E', cat: type, desc: finalTitle, val: lucroTotal - sinal, date: startISO.split('T')[0], confirmed: false });
                 const color = type === 'mecanica' ? '#3b82f6' : '#f97316';
-                this.db.events.push({ id, title: `${finalTitle} | €${total}`, start: startISO, backgroundColor: color, borderColor: color, extendedProps: { total, lucro: lucroTotal, sinal, client: title, type } });
+                
+                // Financeiro automático
+                if(sinal > 0) this.db.transacoes.push({ id: id+'_S', bookingId: id, type: 'E', cat: 'SINAL', desc: `SINAL: ${title}`, val: sinal, date: startISO.split('T')[0], confirmed: true });
+                this.db.transacoes.push({ id: id, bookingId: id, type: 'E', cat: type.toUpperCase(), desc: title, val: total - sinal, date: startISO.split('T')[0], confirmed: false });
+
+                this.db.events.push({ 
+                    id, title: `${title} | €${total}`, start: startISO, end: endISO, 
+                    backgroundColor: color, borderColor: color, 
+                    extendedProps: { total, client: title, type } 
+                });
+                window.calendar.addEvent(this.db.events[this.db.events.length-1]);
                 this.save();
             },
 
-            editBooking(event) {
-                const opt = prompt("1. Valor | 2. PAGO | 3. APAGAR | 4. REVERTER");
-                const id = event.id; const idx = this.db.events.findIndex(e => e.id === id);
-                if(idx === -1) return;
-                if(opt === "2") {
-                    this.db.events[idx].backgroundColor = "#16a34a";
-                    this.db.transacoes.forEach(t => { if(t.bookingId === id) t.confirmed = true; });
-                } else if(opt === "3") {
-                    if(confirm("Eliminar registo?")) { this.db.events = this.db.events.filter(e => e.id !== id); this.db.transacoes = this.db.transacoes.filter(t => t.bookingId !== id); }
-                } else if(opt === "4") {
-                    const originalColor = this.db.events[idx].extendedProps.type === 'mecanica' ? '#3b82f6' : '#f97316';
-                    this.db.events[idx].backgroundColor = originalColor;
-                    this.db.transacoes.forEach(t => { if(t.bookingId === id && !t.desc.includes('SINAL')) t.confirmed = false; });
+            // CATEGORIZADOR INTELIGENTE
+            identificarCategoria(desc) {
+                const d = desc.toLowerCase();
+                for (const [cat, palavras] of Object.entries(this.Categorias)) {
+                    if (palavras.some(p => d.includes(p))) return cat;
                 }
-                this.save();
+                return 'OUTROS';
+            },
+
+            transac(t) {
+                const d = prompt("Descrição:");
+                const v = parseFloat(prompt("Valor (€):"));
+                if(d && v) {
+                    const cat = this.identificarCategoria(d);
+                    this.db.transacoes.push({ id: Date.now(), type: t, cat, desc: d, val: v, date: new Date().toISOString().split('T')[0], confirmed: true });
+                    this.save();
+                }
+            },
+
+            // FOCO AMANHÃ AUTOMÁTICO
+            renderAutoTasks() {
+                const amanha = new Date();
+                amanha.setDate(amanha.getDate() + 1);
+                const dataStr = amanha.toISOString().split('T')[0];
+                const tarefas = this.db.events.filter(e => e.start.startsWith(dataStr));
+                
+                document.getElementById('auto-tasks').innerHTML = tarefas.length ? tarefas.map(t => `
+                    <div style="background:#111; padding:12px; border-radius:12px; margin-bottom:8px; border-left:3px solid ${t.backgroundColor}">
+                        <p style="font-size:11px; font-weight:800;">${t.extendedProps.client}</p>
+                        <p style="font-size:9px; color:gray;">${t.extendedProps.type === 'mecanica' ? '🔧 Check peças e elevador' : '🧼 Preparar químicos/panos'}</p>
+                    </div>
+                `).join('') : '<p style="font-size:10px; color:gray;">Folga amanhã! Nada agendado.</p>';
+            },
+
+            // INSIGHTS DO GEMINI
+            gerarInsight() {
+                let gastos = { PEÇAS: 0, CONSUMÍVEIS: 0, FIXO: 0, MARKETING: 0, OUTROS: 0 };
+                let entradas = 0, saidas = 0;
+                this.db.transacoes.filter(t => t.confirmed).forEach(t => {
+                    if(t.type === 'E') entradas += t.val;
+                    else { saidas += t.val; gastos[t.cat] = (gastos[t.cat] || 0) + t.val; }
+                });
+                const margem = entradas > 0 ? (((entradas - saidas) / entradas) * 100).toFixed(0) : 0;
+                const maiorGasto = Object.keys(gastos).reduce((a, b) => gastos[a] > gastos[b] ? a : b);
+                
+                let conselho = "Operação estável. Foca em converter orçamentos.";
+                if(gastos.PEÇAS > entradas * 0.4) conselho = "Cuidado! Gastos com peças acima de 40%. Revê margens.";
+                if(margem > 50) conselho = "Margem excelente! Momento ideal para investir em Marketing.";
+
+                document.getElementById('gemini-insight').innerHTML = `
+                    Margem Atual: <b>${margem}%</b> | Maior ralo: <b>${maiorGasto}</b><br>
+                    <span style="color:white">💡 ${conselho}</span>
+                `;
             },
 
             render() {
@@ -235,79 +292,38 @@
                     document.getElementById('fin-rec').innerText = `€ ${r.toFixed(2)}`;
                     document.getElementById('fin-gas').innerText = `€ ${g.toFixed(2)}`;
                 }
+                
+                // Privacidade
                 document.querySelectorAll('#mini-saldo, #fin-rec, #fin-gas').forEach(el => {
                     this.db.privacy ? el.classList.add('blur-value') : el.classList.remove('blur-value');
                 });
-                document.getElementById('btn-privacy').innerText = `Privacidade: ${this.db.privacy ? 'ON' : 'OFF'}`;
-                document.getElementById('pecas-list').innerHTML = this.db.pecas.map(p => `
-                    <tr style="border-bottom: 1px solid #111;">
-                        <td style="padding:15px;">${p.n}</td>
-                        <td style="color:gray;">${p.f || '-'}</td>
-                        <td style="text-align:center;"><span onclick="App.togglePecaStatus(${p.id})" class="status-badge status-${p.status.toLowerCase().replace('ç','c')}">${p.status}</span></td>
-                        <td style="text-align:right; padding:15px;"><button onclick="App.delPeca(${p.id})" style="background:none; border:none; color:red;"><i class="bi bi-trash"></i></button></td>
-                    </tr>
-                `).join('');
-                const count = (s) => this.db.pecas.filter(p => p.status === s).length;
-                const ests = [{l:'Pend',c:'#fbbf24',k:'Pendente'}, {l:'Orç',c:'#34d399',k:'Orçamentada'}, {l:'Aceite',c:'#60a5fa',k:'Aceite'}, {l:'Enc',c:'#a78bfa',k:'Encomendada'}];
-                document.getElementById('dash-pecas-grid').innerHTML = ests.map(e => `
-                    <div style="background:#0a0a0a; padding:12px; border-radius:18px; text-align:center; border: 1px solid #111;">
-                        <p style="font-size:7px; color:${e.c}; font-weight:900; text-transform:uppercase;">${e.l}</p>
-                        <p style="font-size:18px; font-weight:900;">${count(e.k)}</p>
-                    </div>
-                `).join('');
-                document.getElementById('notes-list').innerHTML = this.db.notes.map(n => `<div style="display:flex; justify-content:space-between; background:#111; padding:12px; border-radius:12px; margin-bottom:8px; font-size:13px;"><span>${n.txt}</span><button onclick="App.delNote(${n.id})" style="color:var(--brand); border:none; background:none;"><i class="bi bi-check-circle"></i></button></div>`).join('');
-                document.getElementById('fin-history').innerHTML = this.db.transacoes.slice().reverse().map(t => `<div style="padding:12px; border-bottom:1px solid #111; font-size:11px; opacity:${t.confirmed?1:0.3}"><span>${t.desc}</span> <b style="float:right; color:${t.type==='E'?'#22c55e':'#ef4444'}">€${t.val.toFixed(2)}</b></div>`).join('');
-                document.getElementById('oficina-servicos').innerHTML = this.db.events.map(e => `<div style="padding:15px; background:#111; margin-bottom:10px; border-radius:12px; border-left:4px solid ${e.backgroundColor}"><b>${e.title}</b><br><small>${e.start.split('T')[0]}</small></div>`).join('');
-                document.getElementById('crm-grid').innerHTML = this.db.clientes.map(c => `<div class="glass-card"><h4>${c.nome}</h4><p style="font-size:12px; color:gray;">${c.car} • ${c.tel}</p><button onclick="window.open('https://wa.me/${c.tel}')" class="btn-zinc" style="width:100%; margin-top:10px; color:#25d366;">WhatsApp</button></div>`).join('');
+
+                // Listas
+                document.getElementById('notes-list').innerHTML = this.db.notes.map(n => `<div class="flex justify-between" style="background:#111; padding:10px; border-radius:10px; margin-bottom:5px; font-size:12px;">${n.txt} <i onclick="App.delNote(${n.id})" class="bi bi-x-circle" style="color:var(--brand)"></i></div>`).join('');
+                document.getElementById('pecas-list').innerHTML = this.db.pecas.map(p => `<tr style="border-bottom:1px solid #111;"><td style="padding:15px;">${p.n}</td><td>${p.f}</td><td style="text-align:center"><span class="status-badge status-${p.status.toLowerCase()}">${p.status}</span></td><td style="text-align:right"><button onclick="App.delPeca(${p.id})" style="background:none; border:none; color:red;"><i class="bi bi-trash"></i></button></td></tr>`).join('');
+                document.getElementById('fin-history').innerHTML = this.db.transacoes.slice().reverse().map(t => `<div style="padding:10px; border-bottom:1px solid #111; font-size:10px; opacity:${t.confirmed?1:0.3}"><b>${t.cat}</b>: ${t.desc} <span style="float:right; color:${t.type==='E'?'#22c55e':'#ef4444'}">€${t.val.toFixed(2)}</span></div>`).join('');
+                
+                this.renderAutoTasks();
+                this.gerarInsight();
             },
 
-            initCalendar() {
-                window.calendar = new FullCalendar.Calendar(document.getElementById('calendar-main'), {
-                    initialView: 'dayGridMonth', locale: 'pt-pt',
-                    editable: true, eventLongPressDelay: 600,
-                    headerToolbar: { 
-                        left: 'prev,next today', 
-                        center: 'title', 
-                        right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek' 
-                    },
-                    selectable: true, 
-                    select: (i) => { const t = prompt("Viatura:"); if(t) App.processBooking(t, i.startStr); },
-                    eventClick: (i) => App.editBooking(i.event),
-                    eventDrop: (info) => {
-                        const idx = App.db.events.findIndex(e => e.id === info.event.id);
-                        if(idx !== -1) {
-                            App.db.events[idx].start = info.event.startStr;
-                            App.db.transacoes.forEach(t => { if(t.bookingId === info.event.id) t.date = info.event.startStr.split('T')[0]; });
-                            App.save();
-                        }
-                    }
-                });
-                window.calendar.render(); this.refreshCalendar();
-            },
-
-            initChart() {
-                const ctx = document.getElementById('fin-chart');
-                if(ctx) window.myChart = new Chart(ctx, { type: 'line', data: { labels: ['S1','S2','S3','S4'], datasets: [{ data: [0,0,0,0], borderColor: '#f97316', tension: 0.4 }] }, options: { maintainAspectRatio: false } });
-            },
-
-            togglePecaStatus(id) {
-                const p = this.db.pecas.find(x => x.id === id);
-                const estados = ['Pendente', 'Orçamentada', 'Aceite', 'Encomendada'];
-                p.status = estados[(estados.indexOf(p.status) + 1) % estados.length];
-                this.save();
-            },
-
+            // AUXILIARES
             saveNote() { const i = document.getElementById('note-input'); if(i.value) { this.db.notes.push({ id: Date.now(), txt: i.value }); i.value = ''; this.save(); } },
             delNote(id) { this.db.notes = this.db.notes.filter(n => n.id !== id); this.save(); },
-            saveMemo() { this.db.memo = document.getElementById('oficina-memo').value; localStorage.setItem(this.storageKey, JSON.stringify(this.db)); },
-            addClient() { const n = prompt("Nome:"); if(n) { this.db.clientes.push({ id: Date.now(), nome: n, car: prompt("Carro:"), tel: prompt("WhatsApp:") }); this.save(); } },
             addPeca() { const n = prompt("Artigo:"); const f = prompt("Fornecedor:"); if(n) { this.db.pecas.push({ id: Date.now(), n, f, status: 'Pendente' }); this.save(); } },
-            delPeca(id) { if(confirm("Remover peça?")) { this.db.pecas = this.db.pecas.filter(p => p.id !== id); this.save(); } },
+            delPeca(id) { this.db.pecas = this.db.pecas.filter(p => p.id !== id); this.save(); },
             togglePrivacy() { this.db.privacy = !this.db.privacy; this.save(); },
-            exportDB() { const blob = new Blob([JSON.stringify(this.db)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup_point.json`; a.click(); },
+            editBooking(event) { 
+                const opt = prompt("1. Pago | 2. Apagar"); 
+                if(opt==="1") { event.setProp('backgroundColor', '#16a34a'); this.db.transacoes.forEach(t => { if(t.bookingId === event.id) t.confirmed = true; }); this.save(); }
+                if(opt==="2") { event.remove(); this.db.events = this.db.events.filter(e => e.id !== event.id); this.save(); }
+            },
+            exportDB() { const blob = new Blob([JSON.stringify(this.db)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `point_os_backup.json`; a.click(); },
             importDB() { const i = document.createElement('input'); i.type = 'file'; i.onchange = e => { const r = new FileReader(); r.onload = ev => { this.db = JSON.parse(ev.target.result); this.save(); location.reload(); }; r.readAsText(e.target.files[0]); }; i.click(); },
-            createBookingFromBtn(type) { const c = prompt("Viatura:"); if(c) this.processBooking(c, new Date().toISOString(), type); },
-            transac(t) { const d = prompt("Descrição:"); const v = parseFloat(prompt("Valor:")); if(d && v) { this.db.transacoes.push({ id: Date.now(), type: t, cat: 'Manual', desc: d, val: v, date: new Date().toISOString().split('T')[0], confirmed: true }); this.save(); } }
+            initChart() {
+                const ctx = document.getElementById('fin-chart');
+                if(ctx) new Chart(ctx, { type: 'line', data: { labels: ['S1','S2','S3','S4'], datasets: [{ label: 'Receitas', data: [10, 25, 15, 30], borderColor: '#f97316', tension: 0.4 }] }, options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } } });
+            }
         };
 
         const Nav = { to(id, el) { 
@@ -315,10 +331,10 @@
             document.getElementById(id).classList.remove('hidden'); 
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); 
             el.classList.add('active'); 
-            if(id === 'tab-dash') { setTimeout(() => { window.calendar?.render(); }, 150); } 
+            if(id === 'tab-dash') setTimeout(() => window.calendar.render(), 100);
         } };
 
-        window.addEventListener('load', () => App.init());
+        window.onload = () => App.init();
     </script>
 </body>
 </html>
