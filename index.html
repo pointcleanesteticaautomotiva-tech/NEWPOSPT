@@ -44,6 +44,10 @@
         .fc .fc-button { background: #111 !important; border: 1px solid #1a1a1a !important; color: white !important; font-size: 9px !important; font-weight: 800 !important; text-transform: uppercase; }
         .fc .fc-button-active { background: var(--brand) !important; border-color: var(--brand) !important; }
         
+        .cal-selector { display: flex; background: #111; border: 1px solid #1a1a1a; padding: 4px; border-radius: 12px; margin-bottom: 20px; }
+        .cal-btn { flex: 1; padding: 12px; border-radius: 8px; font-size: 10px; font-weight: 900; text-transform: uppercase; text-align: center; cursor: pointer; color: #52525b; }
+        .cal-btn.active { background: var(--brand); color: white; }
+
         .blur-value { filter: blur(12px) !important; transition: 0.3s; }
 
         @media (max-width: 1024px) { 
@@ -84,6 +88,10 @@
             
             <div class="grid-12">
                 <div class="glass-card" style="grid-column: span 8;">
+                    <div class="cal-selector">
+                        <div id="btn-cal-det" onclick="App.switchCal('detailing')" class="cal-btn active">Detailing</div>
+                        <div id="btn-cal-mec" onclick="App.switchCal('mecanica')" class="cal-btn">Mecânica</div>
+                    </div>
                     <div id="calendar-main"></div>
                 </div>
 
@@ -93,18 +101,22 @@
                         <div id="auto-tasks"></div>
                     </div>
 
-                    <div class="glass-card">
+                    <div class="glass-card" style="text-align: center; border: 2px solid rgba(249,115,22,0.2);">
                         <p style="font-size: 10px; font-weight: 900; color: var(--brand); margin-bottom: 5px;">SALDO DISPONÍVEL</p>
                         <h2 id="mini-saldo" style="font-size: 32px; font-weight: 900;">€ 0.00</h2>
                     </div>
 
                     <div class="glass-card">
-                        <h3 style="font-size: 10px; color: var(--zinc-500); margin-bottom: 12px; text-transform: uppercase;">Lembretes Rápidos</h3>
+                        <h3 style="font-size: 10px; color: var(--zinc-500); margin-bottom: 12px; text-transform: uppercase;">Task.OS / Notas</h3>
                         <div class="flex" style="gap: 8px; margin-bottom: 15px;">
                             <input type="text" id="note-input" placeholder="Anotar..." style="flex:1; background: #000; border: 1px solid var(--zinc-800); border-radius: 8px; padding: 10px; color: white;">
                             <button onclick="App.saveNote()" class="btn-orange">+</button>
                         </div>
-                        <div id="notes-list"></div>
+                        <div id="notes-list" style="max-height: 150px; overflow-y: auto;"></div>
+                        <div style="margin-top: 25px; border-top: 1px solid #111; padding-top: 20px;">
+                            <p style="font-size: 10px; color: var(--zinc-500); text-align: center; margin-bottom: 15px; text-transform: uppercase;">Estado de Peças</p>
+                            <div id="dash-pecas-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -117,12 +129,10 @@
                 <button onclick="App.transac('E')" class="btn-zinc" style="color: #22c55e; border-color: #22c55e;">+ Entrada</button>
                 <button onclick="App.transac('S')" class="btn-zinc" style="color: #ef4444; border-color: #ef4444;">- Saída</button>
             </div>
-
             <div class="glass-card" style="border: 1px dashed var(--brand); background: rgba(249,115,22,0.03); margin-bottom: 24px;">
                 <h3 style="font-size: 11px; color: var(--brand);"><i class="bi bi-robot"></i> INSIGHT GEMINI</h3>
-                <p id="gemini-insight" style="font-size: 13px; margin-top: 10px; line-height: 1.5; color: var(--zinc-400);">A analisar...</p>
+                <p id="gemini-insight" style="font-size: 13px; margin-top: 10px; line-height: 1.5; color: var(--zinc-400);">A analisar dados...</p>
             </div>
-
             <div class="grid" style="grid-template-columns: 2fr 1fr; gap: 20px;">
                 <div class="glass-card" style="height: 400px;"><canvas id="fin-chart"></canvas></div>
                 <div class="glass-card" style="height: 400px; overflow-y: auto;"><div id="fin-history"></div></div>
@@ -158,11 +168,12 @@
         const App = {
             storageKey: 'POINT_OS_MASTER_DB_V8',
             db: {},
+            currentView: 'detailing',
             Categorias: {
-                PEÇAS: ['filtro', 'óleo', 'pastilhas', 'disco', 'suspensão', 'peça', 'distribuição', 'kit', 'pneu', 'braço'],
-                CONSUMÍVEIS: ['detergente', 'cera', 'pincel', 'pano', 'shampoo', 'polimento', 'composto', 'luva', 'adblue'],
+                PEÇAS: ['filtro', 'óleo', 'pastilhas', 'disco', 'suspensão', 'peça', 'distribuição', 'kit', 'pneu'],
+                CONSUMÍVEIS: ['detergente', 'cera', 'pincel', 'pano', 'shampoo', 'polimento', 'composto'],
                 FIXO: ['renda', 'luz', 'água', 'internet', 'seguro', 'contabilista'],
-                MARKETING: ['ads', 'facebook', 'instagram', 'cartão', 'flyer', 'logo']
+                MARKETING: ['ads', 'facebook', 'instagram', 'cartão']
             },
 
             init() { 
@@ -170,6 +181,7 @@
                 this.initCalendar(); 
                 this.render(); 
                 this.initChart();
+                if(document.getElementById('oficina-memo')) document.getElementById('oficina-memo').value = this.db.memo || "";
             },
 
             loadDB() {
@@ -178,23 +190,28 @@
                 this.db = raw ? { ...template, ...JSON.parse(raw) } : template;
             },
 
-            save() { 
-                localStorage.setItem(this.storageKey, JSON.stringify(this.db)); 
-                this.render(); 
+            save() { localStorage.setItem(this.storageKey, JSON.stringify(this.db)); this.render(); this.refreshCalendar(); },
+
+            switchCal(type) { this.currentView = type; document.getElementById('btn-cal-det').classList.toggle('active', type === 'detailing'); document.getElementById('btn-cal-mec').classList.toggle('active', type === 'mecanica'); this.refreshCalendar(); },
+
+            refreshCalendar() {
+                if(!window.calendar) return;
+                window.calendar.removeAllEvents();
+                const filtered = this.db.events.filter(e => {
+                    const isMec = e.title.includes('(MECANICA)');
+                    return this.currentView === 'mecanica' ? isMec : !isMec;
+                });
+                window.calendar.addEventSource(filtered);
             },
 
-            // CALENDÁRIO COM MULTI-DIA E GRAVAÇÃO
             initCalendar() {
-                const calEl = document.getElementById('calendar-main');
-                window.calendar = new FullCalendar.Calendar(calEl, {
-                    initialView: 'dayGridMonth', locale: 'pt-pt',
-                    editable: true, selectable: true,
-                    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listWeek' },
-                    events: this.db.events,
-                    select: (i) => { const t = prompt("Viatura:"); if(t) this.processBooking(t, i.startStr, null, i.endStr); },
-                    eventClick: (i) => this.editBooking(i.event),
-                    eventDrop: (info) => this.updateEventDates(info.event),
-                    eventResize: (info) => this.updateEventDates(info.event)
+                window.calendar = new FullCalendar.Calendar(document.getElementById('calendar-main'), {
+                    initialView: 'dayGridMonth', locale: 'pt-pt', editable: true, selectable: true,
+                    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
+                    select: (i) => { const t = prompt("Viatura:"); if(t) App.processBooking(t, i.startStr, null, i.endStr); },
+                    eventClick: (i) => App.editBooking(i.event),
+                    eventDrop: (info) => App.updateEventDates(info.event),
+                    eventResize: (info) => App.updateEventDates(info.event)
                 });
                 window.calendar.render();
             },
@@ -210,26 +227,23 @@
             },
 
             processBooking(title, startISO, forceType = null, endISO = null) {
-                const type = forceType || (confirm("É Mecânica?") ? 'mecanica' : 'detailing');
+                const type = forceType || this.currentView;
                 const total = parseFloat(prompt("Valor Total Bruto (€):") || 0);
                 const sinal = parseFloat(prompt("Valor SINAL (€):") || 0);
-                const id = Date.now().toString();
-                const color = type === 'mecanica' ? '#3b82f6' : '#f97316';
+                let lucroTotal = total;
+                if(type === 'mecanica') lucroTotal = parseFloat(prompt("LUCRO LÍQUIDO ESTIMADO (€):") || 0);
                 
-                // Financeiro automático
-                if(sinal > 0) this.db.transacoes.push({ id: id+'_S', bookingId: id, type: 'E', cat: 'SINAL', desc: `SINAL: ${title}`, val: sinal, date: startISO.split('T')[0], confirmed: true });
-                this.db.transacoes.push({ id: id, bookingId: id, type: 'E', cat: type.toUpperCase(), desc: title, val: total - sinal, date: startISO.split('T')[0], confirmed: false });
+                const id = Date.now().toString();
+                const finalTitle = type === 'mecanica' ? `${title} (MECANICA)` : title;
+                const color = type === 'mecanica' ? '#3b82f6' : '#f97316';
 
-                this.db.events.push({ 
-                    id, title: `${title} | €${total}`, start: startISO, end: endISO, 
-                    backgroundColor: color, borderColor: color, 
-                    extendedProps: { total, client: title, type } 
-                });
-                window.calendar.addEvent(this.db.events[this.db.events.length-1]);
+                if(sinal > 0) this.db.transacoes.push({ id: id+'_S', bookingId: id, type: 'E', cat: 'SINAL', desc: `SINAL: ${finalTitle}`, val: sinal, date: startISO.split('T')[0], confirmed: true });
+                this.db.transacoes.push({ id: id, bookingId: id, type: 'E', cat: type.toUpperCase(), desc: finalTitle, val: lucroTotal - sinal, date: startISO.split('T')[0], confirmed: false });
+
+                this.db.events.push({ id, title: `${finalTitle} | €${total}`, start: startISO, end: endISO, backgroundColor: color, borderColor: color, extendedProps: { total, client: title, type } });
                 this.save();
             },
 
-            // CATEGORIZADOR INTELIGENTE
             identificarCategoria(desc) {
                 const d = desc.toLowerCase();
                 for (const [cat, palavras] of Object.entries(this.Categorias)) {
@@ -240,7 +254,7 @@
 
             transac(t) {
                 const d = prompt("Descrição:");
-                const v = parseFloat(prompt("Valor (€):"));
+                const v = parseFloat(prompt("Valor:"));
                 if(d && v) {
                     const cat = this.identificarCategoria(d);
                     this.db.transacoes.push({ id: Date.now(), type: t, cat, desc: d, val: v, date: new Date().toISOString().split('T')[0], confirmed: true });
@@ -248,82 +262,65 @@
                 }
             },
 
-            // FOCO AMANHÃ AUTOMÁTICO
             renderAutoTasks() {
-                const amanha = new Date();
-                amanha.setDate(amanha.getDate() + 1);
+                const amanha = new Date(); amanha.setDate(amanha.getDate() + 1);
                 const dataStr = amanha.toISOString().split('T')[0];
                 const tarefas = this.db.events.filter(e => e.start.startsWith(dataStr));
-                
                 document.getElementById('auto-tasks').innerHTML = tarefas.length ? tarefas.map(t => `
-                    <div style="background:#111; padding:12px; border-radius:12px; margin-bottom:8px; border-left:3px solid ${t.backgroundColor}">
+                    <div style="background:#111; padding:10px; border-radius:10px; margin-bottom:8px; border-left:3px solid ${t.backgroundColor}">
                         <p style="font-size:11px; font-weight:800;">${t.extendedProps.client}</p>
-                        <p style="font-size:9px; color:gray;">${t.extendedProps.type === 'mecanica' ? '🔧 Check peças e elevador' : '🧼 Preparar químicos/panos'}</p>
+                        <p style="font-size:9px; color:gray;">${t.extendedProps.type === 'mecanica' ? '🔧 Peças e Ferramentas' : '🧼 Químicos e Panos'}</p>
                     </div>
-                `).join('') : '<p style="font-size:10px; color:gray;">Folga amanhã! Nada agendado.</p>';
+                `).join('') : '<p style="font-size:10px; color:gray;">Sem agendamentos para amanhã.</p>';
             },
 
-            // INSIGHTS DO GEMINI
             gerarInsight() {
                 let gastos = { PEÇAS: 0, CONSUMÍVEIS: 0, FIXO: 0, MARKETING: 0, OUTROS: 0 };
-                let entradas = 0, saidas = 0;
+                let ent = 0, sai = 0;
                 this.db.transacoes.filter(t => t.confirmed).forEach(t => {
-                    if(t.type === 'E') entradas += t.val;
-                    else { saidas += t.val; gastos[t.cat] = (gastos[t.cat] || 0) + t.val; }
+                    if(t.type === 'E') ent += t.val; else { sai += t.val; gastos[t.cat] = (gastos[t.cat] || 0) + t.val; }
                 });
-                const margem = entradas > 0 ? (((entradas - saidas) / entradas) * 100).toFixed(0) : 0;
-                const maiorGasto = Object.keys(gastos).reduce((a, b) => gastos[a] > gastos[b] ? a : b);
-                
-                let conselho = "Operação estável. Foca em converter orçamentos.";
-                if(gastos.PEÇAS > entradas * 0.4) conselho = "Cuidado! Gastos com peças acima de 40%. Revê margens.";
-                if(margem > 50) conselho = "Margem excelente! Momento ideal para investir em Marketing.";
-
-                document.getElementById('gemini-insight').innerHTML = `
-                    Margem Atual: <b>${margem}%</b> | Maior ralo: <b>${maiorGasto}</b><br>
-                    <span style="color:white">💡 ${conselho}</span>
-                `;
+                const margem = ent > 0 ? (((ent - sai) / ent) * 100).toFixed(0) : 0;
+                const maior = Object.keys(gastos).reduce((a, b) => gastos[a] > gastos[b] ? a : b);
+                document.getElementById('gemini-insight').innerHTML = `Margem: <b>${margem}%</b> | Maior ralo: <b>${maior}</b><br><span style="color:white">💡 ${margem > 40 ? 'Margem saudável. Considera reinvestir.' : 'Margem apertada. Tenta reduzir custos fixos.'}</span>`;
             },
 
             render() {
                 let r = 0, g = 0;
                 this.db.transacoes.forEach(t => { if(t.confirmed) t.type === 'E' ? r += t.val : g += t.val; });
                 document.getElementById('mini-saldo').innerText = `€ ${(r-g).toFixed(2)}`;
-                if(document.getElementById('fin-rec')) {
-                    document.getElementById('fin-rec').innerText = `€ ${r.toFixed(2)}`;
-                    document.getElementById('fin-gas').innerText = `€ ${g.toFixed(2)}`;
-                }
+                if(document.getElementById('fin-rec')) { document.getElementById('fin-rec').innerText = `€ ${r.toFixed(2)}`; document.getElementById('fin-gas').innerText = `€ ${g.toFixed(2)}`; }
                 
-                // Privacidade
-                document.querySelectorAll('#mini-saldo, #fin-rec, #fin-gas').forEach(el => {
-                    this.db.privacy ? el.classList.add('blur-value') : el.classList.remove('blur-value');
-                });
-
-                // Listas
-                document.getElementById('notes-list').innerHTML = this.db.notes.map(n => `<div class="flex justify-between" style="background:#111; padding:10px; border-radius:10px; margin-bottom:5px; font-size:12px;">${n.txt} <i onclick="App.delNote(${n.id})" class="bi bi-x-circle" style="color:var(--brand)"></i></div>`).join('');
-                document.getElementById('pecas-list').innerHTML = this.db.pecas.map(p => `<tr style="border-bottom:1px solid #111;"><td style="padding:15px;">${p.n}</td><td>${p.f}</td><td style="text-align:center"><span class="status-badge status-${p.status.toLowerCase()}">${p.status}</span></td><td style="text-align:right"><button onclick="App.delPeca(${p.id})" style="background:none; border:none; color:red;"><i class="bi bi-trash"></i></button></td></tr>`).join('');
-                document.getElementById('fin-history').innerHTML = this.db.transacoes.slice().reverse().map(t => `<div style="padding:10px; border-bottom:1px solid #111; font-size:10px; opacity:${t.confirmed?1:0.3}"><b>${t.cat}</b>: ${t.desc} <span style="float:right; color:${t.type==='E'?'#22c55e':'#ef4444'}">€${t.val.toFixed(2)}</span></div>`).join('');
+                document.querySelectorAll('#mini-saldo, #fin-rec, #fin-gas').forEach(el => this.db.privacy ? el.classList.add('blur-value') : el.classList.remove('blur-value'));
+                
+                document.getElementById('pecas-list').innerHTML = this.db.pecas.map(p => `<tr style="border-bottom: 1px solid #111;"><td style="padding:15px;">${p.n}</td><td style="color:gray;">${p.f || '-'}</td><td style="text-align:center;"><span onclick="App.togglePecaStatus(${p.id})" class="status-badge status-${p.status.toLowerCase().replace('ç','c')}">${p.status}</span></td><td style="text-align:right; padding:15px;"><button onclick="App.delPeca(${p.id})" style="background:none; border:none; color:red;"><i class="bi bi-trash"></i></button></td></tr>`).join('');
+                
+                const count = (s) => this.db.pecas.filter(p => p.status === s).length;
+                const ests = [{l:'Pend',c:'#fbbf24',k:'Pendente'}, {l:'Orç',c:'#34d399',k:'Orçamentada'}, {l:'Aceite',c:'#60a5fa',k:'Aceite'}, {l:'Enc',c:'#a78bfa',k:'Encomendada'}];
+                document.getElementById('dash-pecas-grid').innerHTML = ests.map(e => `<div style="background:#0a0a0a; padding:12px; border-radius:18px; text-align:center; border: 1px solid #111;"><p style="font-size:7px; color:${e.c}; font-weight:900; text-transform:uppercase;">${e.l}</p><p style="font-size:18px; font-weight:900;">${count(e.k)}</p></div>`).join('');
+                
+                document.getElementById('notes-list').innerHTML = this.db.notes.map(n => `<div style="display:flex; justify-content:space-between; background:#111; padding:12px; border-radius:12px; margin-bottom:8px; font-size:13px;"><span>${n.txt}</span><button onclick="App.delNote(${n.id})" style="color:var(--brand); border:none; background:none;"><i class="bi bi-check-circle"></i></button></div>`).join('');
+                document.getElementById('fin-history').innerHTML = this.db.transacoes.slice().reverse().map(t => `<div style="padding:12px; border-bottom:1px solid #111; font-size:11px; opacity:${t.confirmed?1:0.3}"><span><b>${t.cat}</b>: ${t.desc}</span> <b style="float:right; color:${t.type==='E'?'#22c55e':'#ef4444'}">€${t.val.toFixed(2)}</b></div>`).join('');
+                document.getElementById('oficina-servicos').innerHTML = this.db.events.map(e => `<div style="padding:15px; background:#111; margin-bottom:10px; border-radius:12px; border-left:4px solid ${e.backgroundColor}"><b>${e.title}</b><br><small>${e.start.split('T')[0]}</small></div>`).join('');
+                document.getElementById('crm-grid').innerHTML = this.db.clientes.map(c => `<div class="glass-card"><h4>${c.nome}</h4><p style="font-size:12px; color:gray;">${c.car} • ${c.tel}</p><button onclick="window.open('https://wa.me/${c.tel}')" class="btn-zinc" style="width:100%; margin-top:10px; color:#25d366;">WhatsApp</button></div>`).join('');
                 
                 this.renderAutoTasks();
                 this.gerarInsight();
             },
 
-            // AUXILIARES
+            togglePecaStatus(id) { const p = this.db.pecas.find(x => x.id === id); const e = ['Pendente', 'Orçamentada', 'Aceite', 'Encomendada']; p.status = e[(e.indexOf(p.status) + 1) % e.length]; this.save(); },
             saveNote() { const i = document.getElementById('note-input'); if(i.value) { this.db.notes.push({ id: Date.now(), txt: i.value }); i.value = ''; this.save(); } },
             delNote(id) { this.db.notes = this.db.notes.filter(n => n.id !== id); this.save(); },
+            saveMemo() { this.db.memo = document.getElementById('oficina-memo').value; localStorage.setItem(this.storageKey, JSON.stringify(this.db)); },
+            addClient() { const n = prompt("Nome:"); if(n) { this.db.clientes.push({ id: Date.now(), nome: n, car: prompt("Carro:"), tel: prompt("WhatsApp:") }); this.save(); } },
             addPeca() { const n = prompt("Artigo:"); const f = prompt("Fornecedor:"); if(n) { this.db.pecas.push({ id: Date.now(), n, f, status: 'Pendente' }); this.save(); } },
             delPeca(id) { this.db.pecas = this.db.pecas.filter(p => p.id !== id); this.save(); },
             togglePrivacy() { this.db.privacy = !this.db.privacy; this.save(); },
-            editBooking(event) { 
-                const opt = prompt("1. Pago | 2. Apagar"); 
-                if(opt==="1") { event.setProp('backgroundColor', '#16a34a'); this.db.transacoes.forEach(t => { if(t.bookingId === event.id) t.confirmed = true; }); this.save(); }
-                if(opt==="2") { event.remove(); this.db.events = this.db.events.filter(e => e.id !== event.id); this.save(); }
-            },
-            exportDB() { const blob = new Blob([JSON.stringify(this.db)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `point_os_backup.json`; a.click(); },
+            editBooking(event) { const opt = prompt("1. Pago | 2. Apagar"); if(opt==="1") { event.setProp('backgroundColor', '#16a34a'); this.db.transacoes.forEach(t => { if(t.bookingId === event.id) t.confirmed = true; }); this.save(); } if(opt==="2") { this.db.events = this.db.events.filter(e => e.id !== event.id); this.db.transacoes = this.db.transacoes.filter(t => t.bookingId !== event.id); this.save(); } },
+            exportDB() { const blob = new Blob([JSON.stringify(this.db)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup_point.json`; a.click(); },
             importDB() { const i = document.createElement('input'); i.type = 'file'; i.onchange = e => { const r = new FileReader(); r.onload = ev => { this.db = JSON.parse(ev.target.result); this.save(); location.reload(); }; r.readAsText(e.target.files[0]); }; i.click(); },
-            initChart() {
-                const ctx = document.getElementById('fin-chart');
-                if(ctx) new Chart(ctx, { type: 'line', data: { labels: ['S1','S2','S3','S4'], datasets: [{ label: 'Receitas', data: [10, 25, 15, 30], borderColor: '#f97316', tension: 0.4 }] }, options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } } });
-            }
+            createBookingFromBtn(type) { const c = prompt("Viatura:"); if(c) this.processBooking(c, new Date().toISOString(), type); },
+            initChart() { const ctx = document.getElementById('fin-chart'); if(ctx) new Chart(ctx, { type: 'line', data: { labels: ['S1','S2','S3','S4'], datasets: [{ label: 'Receitas', data: [0,0,0,0], borderColor: '#f97316', tension: 0.4 }] }, options: { maintainAspectRatio: false } }); }
         };
 
         const Nav = { to(id, el) { 
@@ -331,7 +328,7 @@
             document.getElementById(id).classList.remove('hidden'); 
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); 
             el.classList.add('active'); 
-            if(id === 'tab-dash') setTimeout(() => window.calendar.render(), 100);
+            if(id === 'tab-dash') setTimeout(() => { window.calendar?.render(); }, 150); 
         } };
 
         window.onload = () => App.init();
