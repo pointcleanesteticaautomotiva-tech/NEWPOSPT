@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>POINT.OS | ELITE V11.0</title>
+    <title>POINT.OS | ELITE V12.0 AI</title>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
@@ -103,8 +102,6 @@
                     <div class="glass-card">
                         <h3 style="font-size: 10px; color: var(--zinc-500); margin-bottom: 12px; text-transform: uppercase;">Task.OS / Notas</h3>
                         <div id="notes-list" style="max-height: 150px; overflow-y: auto; margin-bottom: 20px;"></div>
-                        
-                        <p style="font-size: 10px; color: var(--zinc-500); text-align: center; margin-bottom: 12px; text-transform: uppercase;">Estado de Peças</p>
                         <div id="dash-pecas-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;"></div>
                     </div>
                 </div>
@@ -113,13 +110,13 @@
 
         <section id="tab-fin" class="tab-view hidden">
             <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                <div class="glass-card"><p style="font-size:9px; color:gray;">RECEITAS</p><h2 id="fin-rec" class="blur-value" style="color: #22c55e;">€ 0.00</h2></div>
-                <div class="glass-card"><p style="font-size:9px; color:gray;">GASTOS</p><h2 id="fin-gas" class="blur-value" style="color: #ef4444;">€ 0.00</h2></div>
-                <div class="glass-card"><p style="font-size:9px; color:gray;">PREVISÃO/CONTAS</p><h2 id="fin-prev" class="blur-value" style="color: #3b82f6;">€ 0.00</h2></div>
+                <div class="glass-card"><p style="font-size:9px; color:gray;">RECEITAS REAIS</p><h2 id="fin-rec" class="blur-value" style="color: #22c55e;">€ 0.00</h2></div>
+                <div class="glass-card"><p style="font-size:9px; color:gray;">GASTOS REAIS</p><h2 id="fin-gas" class="blur-value" style="color: #ef4444;">€ 0.00</h2></div>
+                <div class="glass-card"><p style="font-size:9px; color:gray;">PREVISÃO CONTAS</p><h2 id="fin-prev" class="blur-value" style="color: #3b82f6;">€ 0.00</h2></div>
             </div>
 
             <div class="glass-card" style="border: 1px dashed var(--brand); background: rgba(249,115,22,0.03);">
-                <div class="flex justify-between"><h3 style="font-size: 11px; color: var(--brand);">🧠 ALOCAÇÃO INTELIGENTE GEMINI</h3><span id="fin-health-badge" style="font-size:9px; font-weight:800;">...</span></div>
+                <div class="flex justify-between"><h3 style="font-size: 11px; color: var(--brand);">🧠 ALOCAÇÃO INTELIGENTE GEMINI</h3><span id="fin-health-badge" style="font-size:9px; font-weight:800;">CALCULANDO...</span></div>
                 <p id="gemini-insight" style="font-size: 13px; margin-top: 10px; color: var(--zinc-400); line-height: 1.6;">A analisar agendamentos e previsões...</p>
             </div>
 
@@ -138,23 +135,23 @@
         </section>
 
         <section id="tab-pecas" class="tab-view hidden">
-            <div class="flex justify-between" style="margin-bottom: 20px;"><h2>Peças</h2><button onclick="App.addPeca()" class="btn-orange">+ Nova Peça</button></div>
-            <div class="glass-card" style="padding: 0; overflow-x: auto;"><table style="width:100%;"><tbody id="pecas-list"></tbody></table></div>
+            <div class="flex justify-between" style="margin-bottom: 20px;"><h2>Gestão de Peças</h2><button onclick="App.addPeca()" class="btn-orange">+ Nova Peça</button></div>
+            <div class="glass-card" style="padding: 0; overflow-x: auto;"><table style="width: 100%; border-collapse: collapse;"><tbody id="pecas-list"></tbody></table></div>
         </section>
 
         <section id="tab-oficina" class="tab-view hidden">
             <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="glass-card"><h3>Ativos</h3><div id="oficina-servicos"></div></div>
-                <div class="glass-card"><h3>Memo</h3><textarea id="oficina-memo" oninput="App.saveMemo()" style="width:100%; height:450px; background:#000; color:#fff; border:1px solid #222; padding:20px; border-radius:15px;"></textarea></div>
+                <div class="glass-card"><h3>Memo Técnico</h3><textarea id="oficina-memo" oninput="App.saveMemo()" style="width:100%; height:450px; background:#000; color:#fff; border:1px solid #222; padding:20px; border-radius:15px;"></textarea></div>
             </div>
         </section>
     </main>
 
     <div id="modal-booking" class="hidden">
         <div class="glass-card" style="width:100%; max-width:420px;">
-            <h3 style="margin-bottom:15px;">Agendar Serviço</h3>
+            <h3 style="margin-bottom:15px;">Novo Agendamento</h3>
             <input type="text" id="in-vtr" placeholder="Viatura/Matrícula" style="width:100%; padding:14px; background:#000; border:1px solid #222; color:#fff; border-radius:12px; margin-bottom:15px;">
-            <label style="font-size: 10px; color: var(--brand);">FOTO ORÇAMENTO (OCR)</label>
+            <label style="font-size: 10px; color: var(--brand);">LER ORÇAMENTO (OCR)</label>
             <input type="file" id="in-file" accept="image/*" onchange="App.readOCR(this)" style="font-size:11px; margin-bottom:15px;">
             <textarea id="in-resumo" placeholder="Tarefas extraídas..." style="width:100%; height:100px; background:#000; border:1px solid #222; color:#fff; padding:12px; border-radius:12px; margin-bottom:20px;"></textarea>
             <div id="ocr-loading" class="hidden" style="text-align:center; color:var(--brand); font-size:10px; margin-bottom:15px;">⏳ A ler documento...</div>
@@ -167,15 +164,15 @@
 
     <script>
         const App = {
-            storageKey: 'POINT_OS_V11_ELITE',
+            storageKey: 'POINT_OS_V12_ELITE',
             db: {},
             currentView: 'detailing',
             tempSelectInfo: null,
             Categorias: {
-                PEÇAS: ['filtro', 'óleo', 'pastilhas', 'disco', 'peça', 'kit', 'pneu'],
+                PEÇAS: ['filtro', 'óleo', 'pastilhas', 'disco', 'peça', 'suspensão', 'amortecedor'],
                 CONSUMÍVEIS: ['detergente', 'cera', 'pano', 'shampoo', 'polimento'],
-                FIXO: ['renda', 'luz', 'água', 'seguro'],
-                MARKETING: ['ads', 'facebook']
+                FIXO: ['renda', 'luz', 'água', 'seguro', 'contabilista'],
+                MARKETING: ['ads', 'facebook', 'instagram', 'anúncio']
             },
 
             init() { this.loadDB(); this.initCalendar(); this.render(); },
@@ -195,15 +192,14 @@
                     longPressDelay: 150,
                     select: (info) => { this.tempSelectInfo = info; document.getElementById('modal-booking').classList.remove('hidden'); },
                     eventClick: (info) => this.editBooking(info.event),
-                    eventDrop: (info) => this.updateEventDates(info.event),
-                    eventResize: (info) => this.updateEventDates(info.event)
+                    eventDrop: (info) => this.updateEventDates(info.event)
                 });
                 window.calendar.render();
             },
 
             updateEventDates(event) {
                 const idx = this.db.events.findIndex(e => e.id === event.id);
-                if(idx !== -1) { this.db.events[idx].start = event.startStr; this.db.events[idx].end = event.endStr; this.save(); }
+                if(idx !== -1) { this.db.events[idx].start = event.startStr; this.save(); }
             },
 
             switchCal(type) { 
@@ -238,9 +234,7 @@
                 const resumo = document.getElementById('in-resumo').value;
                 if(!vtr) return;
                 const id = Date.now().toString();
-                const total = parseFloat(prompt("Valor Total Bruto (€):") || 0);
-                let lucro = total;
-                if(this.currentView === 'mecanica') lucro = parseFloat(prompt("LUCRO ESTIMADO (€):") || 0);
+                const total = parseFloat(prompt("Valor Total (€):") || 0);
                 
                 const color = this.currentView === 'mecanica' ? '#3b82f6' : '#f97316';
                 const finalTitle = this.currentView === 'mecanica' ? `${vtr} (MECANICA)` : vtr;
@@ -250,7 +244,9 @@
                 }
 
                 this.db.events.push({ id, title: `${finalTitle} | €${total}`, start: this.tempSelectInfo.startStr, end: this.tempSelectInfo.endStr, backgroundColor: color, borderColor: color, extendedProps: { client: vtr, type: this.currentView } });
-                this.db.transacoes.push({ id, bookingId: id, type: 'E', cat: this.currentView.toUpperCase(), desc: finalTitle, val: lucro, date: this.tempSelectInfo.startStr, confirmed: false });
+                
+                // Regista como entrada projetada (não confirmada)
+                this.db.transacoes.push({ id, bookingId: id, type: 'E', cat: this.currentView.toUpperCase(), desc: finalTitle, val: total, date: this.tempSelectInfo.startStr, confirmed: false });
                 
                 document.getElementById('modal-booking').classList.add('hidden');
                 this.save();
@@ -258,7 +254,9 @@
 
             identificarCategoria(desc) {
                 const d = desc.toLowerCase();
-                for (const [cat, palavras] of Object.entries(this.Categorias)) { if (palavras.some(p => d.includes(p))) return cat; }
+                for (const [cat, palavras] of Object.entries(this.Categorias)) {
+                    if (palavras.some(p => d.includes(p))) return cat;
+                }
                 return 'OUTROS';
             },
 
@@ -272,10 +270,10 @@
                 }
             },
 
-            // CÉREBRO DE ALOCAÇÃO GEMINI
+            // --- CÉREBRO DE ALOCAÇÃO ATUALIZADO ---
             renderFinanceiro() {
                 let rec = 0, gas = 0, prev = 0, entradasFuturas = 0;
-                let cats = { PEÇAS: 0, CONSUMÍVEIS: 0, FIXO: 0, OUTROS: 0 };
+                let cats = { PEÇAS: 0, CONSUMÍVEIS: 0, FIXO: 0, MARKETING: 0, OUTROS: 0 };
 
                 this.db.transacoes.forEach(t => {
                     if(t.type === 'E') {
@@ -283,10 +281,14 @@
                         else entradasFuturas += t.val;
                     } else if(t.type === 'S') {
                         gas += t.val; cats[t.cat] = (cats[t.cat] || 0) + t.val;
-                    } else if(t.type === 'P') prev += t.val;
+                    } else if(t.type === 'P') {
+                        prev += t.val;
+                    }
                 });
 
                 const saldoReal = rec - gas;
+                const disponivelTotal = saldoReal + entradasFuturas;
+                
                 document.getElementById('fin-rec').innerText = `€ ${rec.toFixed(2)}`;
                 document.getElementById('fin-gas').innerText = `€ ${gas.toFixed(2)}`;
                 document.getElementById('fin-prev').innerText = `€ ${prev.toFixed(2)}`;
@@ -295,26 +297,32 @@
                 const insightEl = document.getElementById('gemini-insight');
                 const badge = document.getElementById('fin-health-badge');
 
-                if (entradasFuturas > 0) {
-                    let resPecas = entradasFuturas * 0.3;
-                    let resFixo = prev > saldoReal ? (prev - saldoReal) : 0;
-                    let lucroLivre = entradasFuturas - resPecas - resFixo;
-                    badge.innerText = "PLANO DE ALOCAÇÃO"; badge.style.color = "#f97316";
-                    insightEl.innerHTML = `<b>Distribuição das entradas de €${entradasFuturas.toFixed(2)}:</b><br>
-                        • <span style="color:#a78bfa">Material:</span> Reserva <b>€${resPecas.toFixed(2)}</b><br>
-                        • <span style="color:#ef4444">Dívidas/Previsões:</span> Aloca <b>€${resFixo.toFixed(2)}</b><br>
-                        • <span style="color:#22c55e">Lucro Livre:</span> Sobram <b>€${lucroLivre > 0 ? lucroLivre.toFixed(2) : 0}</b>.`;
+                // Lógica de Aconselhamento
+                if (disponivelTotal < prev) {
+                    badge.innerText = "ALERTA: DÉFICE"; badge.style.color = "#ef4444";
+                    insightEl.innerHTML = `⚠️ <b>Atenção:</b> Tens <b>€${prev.toFixed(2)}</b> em contas previstas mas apenas <b>€${disponivelTotal.toFixed(2)}</b> projetados. <br>👉 <b>Ação:</b> Foca em converter orçamentos e evita qualquer gasto extra imediato.`;
                 } else {
-                    badge.innerText = "ESTÁVEL"; badge.style.color = "#22c55e";
-                    insightEl.innerText = "Sem entradas futuras pendentes. Saldo atual controlado.";
+                    const sobraLivre = disponivelTotal - prev;
+                    badge.innerText = "SAUDÁVEL / CRESCIMENTO"; badge.style.color = "#22c55e";
+                    
+                    if (entradasFuturas < (rec * 0.2)) {
+                        insightEl.innerHTML = `✅ Contas cobertas. Sobram <b>€${sobraLivre.toFixed(2)}</b>.<br>👉 <b>Investimento:</b> Agenda fraca. Aloca <b>€${(sobraLivre * 0.3).toFixed(2)}</b> em <b>Marketing/Ads</b> para atrair novos clientes.`;
+                    } else if (cats.PEÇAS > (rec * 0.4)) {
+                        insightEl.innerHTML = `✅ Margem livre de <b>€${sobraLivre.toFixed(2)}</b>.<br>👉 <b>Investimento:</b> Gastos com peças elevados. Considera investir em <b>Stock Próprio</b> para aumentar a tua margem de lucro.`;
+                    } else {
+                        insightEl.innerHTML = `✅ <b>Saúde Excelente!</b> Tens <b>€${sobraLivre.toFixed(2)}</b> de lucro real projetado.<br>👉 <b>Alocação:</b> Cria uma reserva de 20% e investe o restante em melhoria da oficina.`;
+                    }
                 }
 
                 document.getElementById('fin-history').innerHTML = this.db.transacoes.slice().reverse().map(t => `
-                    <div style="padding:15px; border-bottom:1px solid #111; display:flex; justify-content:space-between; opacity:${t.confirmed?1:0.5}">
-                        <div><small style="color:var(--brand); font-size:8px;">${t.cat}</small><br>${t.desc}</div>
+                    <div style="padding:15px; border-bottom:1px solid #111; display:flex; justify-content:space-between; align-items:center; opacity:${t.confirmed ? 1 : 0.6}">
+                        <div>
+                            <small style="color:var(--brand); font-size:8px; font-weight:800;">${t.cat} ${t.confirmed ? '' : '• PROJETADO'}</small><br>
+                            <span style="font-size:12px;">${t.desc}</span>
+                        </div>
                         <div style="text-align:right">
-                            <b style="color:${t.type==='E'?'#22c55e':(t.type==='P'?'#3b82f6':'#ef4444')}">€${t.val.toFixed(2)}</b>
-                            ${t.type==='P' ? `<br><small onclick="App.confirmarPagamento(${t.id})" style="text-decoration:underline; cursor:pointer; font-size:9px;">Pagar</small>` : ''}
+                            <b style="color:${t.type==='E' ? '#22c55e' : (t.type==='P' ? '#3b82f6' : '#ef4444')}">€${t.val.toFixed(2)}</b>
+                            ${t.type==='P' ? `<br><small onclick="App.confirmarPagamento(${t.id})" style="text-decoration:underline; cursor:pointer; font-size:9px; color:gray;">Confirmar Paga</small>` : ''}
                         </div>
                     </div>
                 `).join('');
@@ -341,16 +349,17 @@
                 document.getElementById('crm-grid').innerHTML = this.db.clientes.map(c => `<div class="glass-card" style="padding:15px;"><b>${c.nome}</b><br><small style="color:gray;">${c.car}</small></div>`).join('');
                 document.getElementById('oficina-servicos').innerHTML = this.db.events.map(e => `<div style="padding:12px; background:#111; border-radius:12px; margin-bottom:8px;">${e.title}</div>`).join('');
                 this.db.privacy ? document.body.classList.add('privacy-on') : document.body.classList.remove('privacy-on');
+                document.getElementById('btn-privacy').innerText = `Privacidade: ${this.db.privacy ? 'ON' : 'OFF'}`;
             },
 
             togglePecaStatus(id) { const p = this.db.pecas.find(x => x.id === id); const s = ['Pendente', 'Orçamentada', 'Aceite', 'Encomendada']; p.status = s[(s.indexOf(p.status) + 1) % s.length]; this.save(); },
             delNote(id) { this.db.notes = this.db.notes.filter(n => n.id !== id); this.save(); },
             addPeca() { const n = prompt("Artigo:"); if(n) { this.db.pecas.push({ id: Date.now(), n, status: 'Pendente' }); this.save(); } },
-            addClient() { const n = prompt("Nome:"); if(n) { this.db.clientes.push({ id: Date.now(), nome: n, car: prompt("Carro:"), tel: prompt("Tel:") }); this.save(); } },
-            editBooking(e) { const opt = prompt("1. Pago | 2. Apagar"); if(opt==="1") { e.setProp('backgroundColor', '#16a34a'); this.db.transacoes.forEach(t => { if(t.bookingId === e.id) t.confirmed = true; }); this.save(); } if(opt==="2") { this.db.events = this.db.events.filter(x => x.id !== e.id); this.save(); } },
+            addClient() { const n = prompt("Nome:"); if(n) { this.db.clientes.push({ id: Date.now(), nome: n, car: prompt("Carro:") }); this.save(); } },
+            editBooking(e) { const opt = prompt("1. Pago | 2. Apagar"); if(opt==="1") { e.setProp('backgroundColor', '#16a34a'); this.db.transacoes.forEach(t => { if(t.bookingId === e.id) t.confirmed = true; }); this.save(); } if(opt==="2") { this.db.events = this.db.events.filter(x => x.id !== e.id); this.db.transacoes = this.db.transacoes.filter(x => x.bookingId !== e.id); this.save(); } },
             saveMemo() { this.db.memo = document.getElementById('oficina-memo').value; localStorage.setItem(this.storageKey, JSON.stringify(this.db)); },
             togglePrivacy() { this.db.privacy = !this.db.privacy; this.save(); },
-            exportDB() { const b = new Blob([JSON.stringify(this.db)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download='point_os.json'; a.click(); },
+            exportDB() { const b = new Blob([JSON.stringify(this.db)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download='point_os_elite.json'; a.click(); },
             importDB() { const i = document.createElement('input'); i.type='file'; i.onchange=e=>{ const r=new FileReader(); r.onload=ev=>{this.db=JSON.parse(ev.target.result); this.save(); location.reload();}; r.readAsText(e.target.files[0]); }; i.click(); }
         };
 
