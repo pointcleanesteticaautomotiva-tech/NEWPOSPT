@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>POINT.OS | DASHBOARD ORIGINAL</title>
+    <title>POINT.OS | BASE</title>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -35,10 +35,6 @@
         .cal-btn.active { background: var(--brand); color: white; }
 
         .privacy-on .blur-text { filter: blur(10px); }
-        
-        .fc .fc-toolbar-title { font-size: 1.2em; font-weight: 800; }
-        .fc .fc-button-primary { background: #1a1a1a; border: 1px solid #333; }
-        .fc .fc-button-active { background: var(--brand) !important; border-color: var(--brand) !important; }
     </style>
 </head>
 <body>
@@ -68,7 +64,6 @@
                         <div id="calendar-main"></div>
                     </div>
                 </div>
-
                 <div>
                     <div class="glass-card">
                         <h4>Próximos Serviços</h4>
@@ -205,13 +200,11 @@
                 document.getElementById('fin-real').innerText = `€ ${real.toFixed(2)}`;
                 document.getElementById('fin-age').innerText = `€ ${age.toFixed(2)}`;
                 document.getElementById('fin-prev').innerText = `€ ${prev.toFixed(2)}`;
-
                 document.body.classList.toggle('privacy-on', this.db.privacy);
 
                 document.getElementById('fin-lista').innerHTML = this.db.transacoes.slice().reverse().map(t => `
                     <div style="padding: 15px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between;">
-                        <span>${t.desc}</span>
-                        <b>€${t.val.toFixed(2)}</b>
+                        <span>${t.desc}</span><b>€${t.val.toFixed(2)}</b>
                     </div>
                 `).join('');
 
@@ -221,12 +214,11 @@
                     </div>
                 `).join('');
                 
-                // Renderizar widgets extras do Dashboard
                 document.getElementById('next-services').innerHTML = this.db.events.slice(-3).map(e => `
                     <div style="font-size:12px; margin-bottom:10px; padding-bottom:5px; border-bottom:1px solid #1a1a1a">
                         ${e.title} <br> <small style="color:#52525b">${e.start}</small>
                     </div>
-                `).join('') || 'Sem serviços próximos';
+                `).join('') || 'Sem serviços';
             },
 
             togglePrivacy() { this.db.privacy = !this.db.privacy; this.save(); },
