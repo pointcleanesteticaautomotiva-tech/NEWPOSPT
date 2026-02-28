@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>POINT.OS | COMPLETO</title>
+    <title>POINT.OS | SYSTEM</title>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <style>
@@ -16,7 +15,7 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body { background-color: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: #e5e7eb; display: flex; min-height: 100vh; }
         
-        .sidebar { width: 240px; border-right: 1px solid var(--border); padding: 40px 0; flex-shrink: 0; }
+        .sidebar { width: 240px; border-right: 1px solid var(--border); padding: 40px 0; flex-shrink: 0; position: relative; }
         .viewport { flex-grow: 1; padding: 40px; }
         
         .nav-item { display: flex; align-items: center; padding: 14px 20px; color: #52525b; cursor: pointer; font-size: 14px; font-weight: 600; }
@@ -27,15 +26,20 @@
         .hidden { display: none !important; }
 
         .btn-orange { background: var(--brand); color: white; border: none; padding: 12px 24px; border-radius: 16px; font-weight: 800; cursor: pointer; }
-        .btn-zinc { background: #111; color: white; border: 1px solid #222; padding: 8px 16px; border-radius: 12px; font-size: 10px; cursor: pointer; }
-
-        #calendar-main { background: #000; border-radius: 20px; padding: 10px; border: 1px solid var(--border); color: white; }
+        .btn-zinc { background: #111; color: white; border: 1px solid #222; padding: 8px 16px; border-radius: 12px; font-size: 10px; cursor: pointer; margin-bottom: 5px; width: 80%; margin-left: 10%; }
+        
+        #calendar-main { background: #000; border-radius: 20px; padding: 10px; border: 1px solid var(--border); color: white; min-height: 650px; }
         
         .cal-selector { display: flex; background: #111; padding: 4px; border-radius: 12px; margin-bottom: 15px; gap: 4px; }
         .cal-btn { flex: 1; padding: 8px; border-radius: 8px; font-size: 11px; font-weight: 800; text-align: center; cursor: pointer; color: #52525b; }
         .cal-btn.active { background: var(--brand); color: white; }
 
-        .privacy-on .blur-text { filter: blur(8px); }
+        .privacy-on .blur-text { filter: blur(10px); }
+        
+        /* Ajustes Visões Calendário */
+        .fc .fc-toolbar-title { font-size: 1.2em; font-weight: 800; }
+        .fc .fc-button-primary { background: #1a1a1a; border: 1px solid #333; }
+        .fc .fc-button-active { background: var(--brand) !important; border-color: var(--brand) !important; }
     </style>
 </head>
 <body>
@@ -47,9 +51,9 @@
             <div onclick="Nav.to('tab-fin', this)" class="nav-item"><i class="bi bi-cash-stack"></i> Financeiro</div>
             <div onclick="Nav.to('tab-pecas', this)" class="nav-item"><i class="bi bi-box-seam"></i> Peças</div>
         </nav>
-        <div style="padding: 20px; display: grid; gap: 10px;">
-            <button onclick="App.togglePrivacy()" class="btn-zinc">Privacidade</button>
-            <button onclick="App.exportData()" class="btn-zinc">Backup</button>
+        <div style="position: absolute; bottom: 20px; width: 100%;">
+            <button onclick="App.togglePrivacy()" class="btn-zinc">Modo Privacidade</button>
+            <button onclick="App.exportData()" class="btn-zinc">Exportar Backup</button>
         </div>
     </aside>
 
@@ -70,76 +74,78 @@
                 <div class="glass-card"><h4>Agendado</h4><h2 id="fin-age" class="blur-text" style="color: var(--brand);">€ 0.00</h2></div>
                 <div class="glass-card"><h4>Previsões</h4><h2 id="fin-prev" class="blur-text" style="color: #3b82f6;">€ 0.00</h2></div>
             </div>
-
-            <div class="glass-card" style="border: 1px dashed var(--brand);">
-                <h4 style="color: var(--brand); font-size: 11px;">🧠 ALOCAÇÃO INTELIGENTE (GEMINI)</h4>
-                <p id="gemini-insight" style="margin-top: 10px; font-size: 14px; color: #a1a1aa;">A analisar...</p>
-            </div>
-
             <div style="margin: 20px 0; display: flex; gap: 10px;">
-                <button onclick="App.addTransacao('E')" class="btn-orange">Entrada</button>
-                <button onclick="App.addTransacao('P')" class="btn-orange" style="background: #3b82f6;">Previsão</button>
-                <button onclick="App.addTransacao('OCR')" class="btn-orange" style="background: #6366f1;">Ler Fatura (OCR)</button>
+                <button onclick="App.addTransacao('E')" class="btn-orange">Nova Entrada</button>
+                <button onclick="App.addTransacao('P')" class="btn-orange" style="background: #3b82f6;">Nova Previsão</button>
+                <button onclick="App.addTransacao('S')" class="btn-orange" style="background: #ef4444;">Nova Saída</button>
             </div>
             <div id="fin-lista" class="glass-card" style="padding: 0;"></div>
         </section>
 
         <section id="tab-pecas" class="tab-view hidden">
-            <div class="glass-card"><h2>Gestão de Peças</h2><p>Lista de stock...</p></div>
+            <div class="glass-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Inventário de Peças</h2>
+                    <button onclick="App.addPeca()" class="btn-orange" style="padding: 8px 16px; font-size: 10px;">+ Adicionar</button>
+                </div>
+                <div id="pecas-lista"></div>
+            </div>
         </section>
     </main>
 
     <script>
         const App = {
-            db: { events: [], transacoes: [], privacy: false },
+            db: { events: [], transacoes: [], pecas: [], privacy: false },
             currentView: 'detailing',
 
             init() {
-                const saved = localStorage.getItem('POINT_OS_DATA_V2');
+                const saved = localStorage.getItem('POINT_OS_FULL_DATA');
                 if(saved) this.db = JSON.parse(saved);
                 this.initCalendar();
                 this.render();
             },
 
             save() {
-                localStorage.setItem('POINT_OS_DATA_V2', JSON.stringify(this.db));
+                localStorage.setItem('POINT_OS_FULL_DATA', JSON.stringify(this.db));
                 this.render();
             },
 
             initCalendar() {
                 const calEl = document.getElementById('calendar-main');
                 this.calendar = new FullCalendar.Calendar(calEl, {
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    },
                     initialView: 'dayGridMonth',
                     locale: 'pt-pt',
                     editable: true,
                     selectable: true,
                     events: this.db.events,
                     
-                    // CORREÇÃO: Gravar arrasto e duração multi-dia
+                    // CORREÇÃO: Atualiza o banco de dados ao mover ou redimensionar eventos
                     eventDrop: (info) => this.syncEvent(info.event),
                     eventResize: (info) => this.syncEvent(info.event),
                     
                     select: (info) => {
                         const title = prompt("Viatura / Serviço:");
-                        const val = parseFloat(prompt("Valor Estimado (€):") || 0);
                         if(title) {
                             const newEvt = {
                                 id: Date.now().toString(),
-                                title: `${title} | €${val}`,
+                                title: title,
                                 start: info.startStr,
                                 end: info.endStr,
                                 allDay: info.allDay,
-                                extendedProps: { type: this.currentView, val: val }
+                                extendedProps: { category: this.currentView }
                             };
                             this.db.events.push(newEvt);
-                            this.db.transacoes.push({ id: 't'+newEvt.id, type: 'E', val: val, desc: title, confirmed: false });
                             this.save();
                             this.calendar.addEvent(newEvt);
                         }
                     }
                 });
                 this.calendar.render();
-                this.filterEvents();
             },
 
             syncEvent(fcEvent) {
@@ -155,24 +161,23 @@
                 this.currentView = type;
                 document.getElementById('btn-det').classList.toggle('active', type === 'detailing');
                 document.getElementById('btn-mec').classList.toggle('active', type === 'mecanica');
-                this.filterEvents();
-            },
-
-            filterEvents() {
-                const allEvents = this.calendar.getEvents();
-                allEvents.forEach(e => {
-                    const type = e.extendedProps.type || 'detailing';
-                    e.setProp('display', type === this.currentView ? 'auto' : 'none');
-                    e.setProp('color', type === 'detailing' ? '#f97316' : '#3b82f6');
-                });
+                // Lógica de filtragem por categoria pode ser adicionada aqui
             },
 
             addTransacao(tipo) {
-                if(tipo === 'OCR') { alert("Função OCR Ativada. Selecione a imagem..."); return; }
                 const desc = prompt("Descrição:");
                 const val = parseFloat(prompt("Valor (€):") || 0);
                 if(desc && val) {
                     this.db.transacoes.push({ id: Date.now(), type: tipo, val: val, desc: desc, confirmed: tipo !== 'P' });
+                    this.save();
+                }
+            },
+
+            addPeca() {
+                const nome = prompt("Peça:");
+                const qtd = prompt("Quantidade:");
+                if(nome) {
+                    this.db.pecas.push({ id: Date.now(), nome, qtd });
                     this.save();
                 }
             },
@@ -184,32 +189,35 @@
                     if(t.type === 'S') real -= t.val;
                     if(t.type === 'P') prev += t.val;
                 });
-
                 document.getElementById('fin-real').innerText = `€ ${real.toFixed(2)}`;
                 document.getElementById('fin-age').innerText = `€ ${age.toFixed(2)}`;
                 document.getElementById('fin-prev').innerText = `€ ${prev.toFixed(2)}`;
 
-                // Lógica Gemini
-                const insight = document.getElementById('gemini-insight');
-                const total = real + age;
-                if(total < prev) {
-                    insight.innerHTML = `<span style="color:#ef4444">⚠️ Alerta: Faltam €${(prev - total).toFixed(2)} para cobrir as previsões.</span>`;
-                } else {
-                    insight.innerHTML = `<span style="color:#22c55e">✅ Seguro: Tens margem de €${(total - prev).toFixed(2)} após as contas.</span>`;
-                }
-
                 document.body.classList.toggle('privacy-on', this.db.privacy);
-                
+
                 document.getElementById('fin-lista').innerHTML = this.db.transacoes.slice().reverse().map(t => `
-                    <div style="padding: 15px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between;">
+                    <div style="padding: 15px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; align-items: center;">
                         <span>${t.desc}</span>
-                        <b>€${t.val.toFixed(2)}</b>
+                        <b style="color:${t.type==='E'?'#22c55e':(t.type==='P'?'#3b82f6':'#ef4444')}">€${t.val.toFixed(2)}</b>
+                    </div>
+                `).join('');
+
+                document.getElementById('pecas-lista').innerHTML = this.db.pecas.map(p => `
+                    <div style="padding: 12px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between;">
+                        <span>${p.nome}</span>
+                        <span>Qtd: <b>${p.qtd}</b></span>
                     </div>
                 `).join('');
             },
 
             togglePrivacy() { this.db.privacy = !this.db.privacy; this.save(); },
-            exportData() { alert(JSON.stringify(this.db)); }
+            exportData() { 
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.db));
+                const dlAnchorElem = document.createElement('a');
+                dlAnchorElem.setAttribute("href", dataStr);
+                dlAnchorElem.setAttribute("download", "point_os_backup.json");
+                dlAnchorElem.click();
+            }
         };
 
         const Nav = {
@@ -218,7 +226,7 @@
                 document.getElementById(id).classList.remove('hidden');
                 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
                 el.classList.add('active');
-                if(id === 'tab-dash') setTimeout(() => { App.calendar.render(); App.filterEvents(); }, 50);
+                if(id === 'tab-dash') setTimeout(() => App.calendar.render(), 50);
             }
         };
 
