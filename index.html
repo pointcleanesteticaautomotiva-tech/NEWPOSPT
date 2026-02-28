@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>POINT.OS | SYSTEM</title>
+    <title>POINT.OS | DASHBOARD ORIGINAL</title>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -36,7 +36,6 @@
 
         .privacy-on .blur-text { filter: blur(10px); }
         
-        /* Ajustes Visões Calendário */
         .fc .fc-toolbar-title { font-size: 1.2em; font-weight: 800; }
         .fc .fc-button-primary { background: #1a1a1a; border: 1px solid #333; }
         .fc .fc-button-active { background: var(--brand) !important; border-color: var(--brand) !important; }
@@ -59,12 +58,27 @@
 
     <main class="viewport">
         <section id="tab-dash" class="tab-view">
-            <div class="cal-selector">
-                <div id="btn-det" onclick="App.switchView('detailing')" class="cal-btn active">Detailing</div>
-                <div id="btn-mec" onclick="App.switchView('mecanica')" class="cal-btn">Mecânica</div>
-            </div>
-            <div class="glass-card">
-                <div id="calendar-main"></div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                <div>
+                    <div class="cal-selector">
+                        <div id="btn-det" onclick="App.switchView('detailing')" class="cal-btn active">Detailing</div>
+                        <div id="btn-mec" onclick="App.switchView('mecanica')" class="cal-btn">Mecânica</div>
+                    </div>
+                    <div class="glass-card">
+                        <div id="calendar-main"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="glass-card">
+                        <h4>Próximos Serviços</h4>
+                        <div id="next-services" style="margin-top: 15px;"></div>
+                    </div>
+                    <div class="glass-card">
+                        <h4>Status da Oficina</h4>
+                        <div id="oficina-status" style="margin-top: 15px;"></div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -85,8 +99,8 @@
         <section id="tab-pecas" class="tab-view hidden">
             <div class="glass-card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2>Inventário de Peças</h2>
-                    <button onclick="App.addPeca()" class="btn-orange" style="padding: 8px 16px; font-size: 10px;">+ Adicionar</button>
+                    <h2>Stock de Peças</h2>
+                    <button onclick="App.addPeca()" class="btn-orange" style="padding: 8px 16px; font-size: 10px;">+ Peça</button>
                 </div>
                 <div id="pecas-lista"></div>
             </div>
@@ -99,14 +113,14 @@
             currentView: 'detailing',
 
             init() {
-                const saved = localStorage.getItem('POINT_OS_FULL_DATA');
+                const saved = localStorage.getItem('POINT_OS_PRO');
                 if(saved) this.db = JSON.parse(saved);
                 this.initCalendar();
                 this.render();
             },
 
             save() {
-                localStorage.setItem('POINT_OS_FULL_DATA', JSON.stringify(this.db));
+                localStorage.setItem('POINT_OS_PRO', JSON.stringify(this.db));
                 this.render();
             },
 
@@ -124,7 +138,6 @@
                     selectable: true,
                     events: this.db.events,
                     
-                    // CORREÇÃO: Atualiza o banco de dados ao mover ou redimensionar eventos
                     eventDrop: (info) => this.syncEvent(info.event),
                     eventResize: (info) => this.syncEvent(info.event),
                     
@@ -137,7 +150,7 @@
                                 start: info.startStr,
                                 end: info.endStr,
                                 allDay: info.allDay,
-                                extendedProps: { category: this.currentView }
+                                extendedProps: { type: this.currentView }
                             };
                             this.db.events.push(newEvt);
                             this.save();
@@ -161,7 +174,7 @@
                 this.currentView = type;
                 document.getElementById('btn-det').classList.toggle('active', type === 'detailing');
                 document.getElementById('btn-mec').classList.toggle('active', type === 'mecanica');
-                // Lógica de filtragem por categoria pode ser adicionada aqui
+                this.calendar.render();
             },
 
             addTransacao(tipo) {
@@ -174,7 +187,7 @@
             },
 
             addPeca() {
-                const nome = prompt("Peça:");
+                const nome = prompt("Nome da Peça:");
                 const qtd = prompt("Quantidade:");
                 if(nome) {
                     this.db.pecas.push({ id: Date.now(), nome, qtd });
@@ -196,28 +209,28 @@
                 document.body.classList.toggle('privacy-on', this.db.privacy);
 
                 document.getElementById('fin-lista').innerHTML = this.db.transacoes.slice().reverse().map(t => `
-                    <div style="padding: 15px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="padding: 15px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between;">
                         <span>${t.desc}</span>
-                        <b style="color:${t.type==='E'?'#22c55e':(t.type==='P'?'#3b82f6':'#ef4444')}">€${t.val.toFixed(2)}</b>
+                        <b>€${t.val.toFixed(2)}</b>
                     </div>
                 `).join('');
 
                 document.getElementById('pecas-lista').innerHTML = this.db.pecas.map(p => `
-                    <div style="padding: 12px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between;">
-                        <span>${p.nome}</span>
-                        <span>Qtd: <b>${p.qtd}</b></span>
+                    <div style="padding: 10px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between;">
+                        <span>${p.nome}</span><span>Qtd: ${p.qtd}</span>
                     </div>
                 `).join('');
+                
+                // Renderizar widgets extras do Dashboard
+                document.getElementById('next-services').innerHTML = this.db.events.slice(-3).map(e => `
+                    <div style="font-size:12px; margin-bottom:10px; padding-bottom:5px; border-bottom:1px solid #1a1a1a">
+                        ${e.title} <br> <small style="color:#52525b">${e.start}</small>
+                    </div>
+                `).join('') || 'Sem serviços próximos';
             },
 
             togglePrivacy() { this.db.privacy = !this.db.privacy; this.save(); },
-            exportData() { 
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.db));
-                const dlAnchorElem = document.createElement('a');
-                dlAnchorElem.setAttribute("href", dataStr);
-                dlAnchorElem.setAttribute("download", "point_os_backup.json");
-                dlAnchorElem.click();
-            }
+            exportData() { alert(JSON.stringify(this.db)); }
         };
 
         const Nav = {
