@@ -94,7 +94,7 @@
                     selectable: true,
                     events: this.db.events,
                     
-                    // Salva quando é arrastado ou redimensionado
+                    // CORREÇÃO PARA SALVAR ARRASTO E DURAÇÃO
                     eventDrop: (info) => this.syncEvent(info.event),
                     eventResize: (info) => this.syncEvent(info.event),
                     
@@ -103,18 +103,15 @@
                         if(title) {
                             const valMatch = title.match(/\d+/);
                             const val = valMatch ? parseFloat(valMatch[0]) : 0;
-                            
-                            // CORRIGIDO: Nome da variável de 'newEvt' para 'newEvent'
-                            const newEvent = {
+                            const newEvt = {
                                 id: Date.now().toString(),
                                 title: title,
                                 start: info.startStr,
-                                end: info.endStr, 
+                                end: info.endStr, // Salva o fim
                                 allDay: info.allDay
                             };
-                            
                             this.db.events.push(newEvent);
-                            this.db.transacoes.push({ id: 't'+newEvent.id, type: 'E', val: val, desc: title, confirmed: false });
+                            this.db.transacoes.push({ id: 't'+newEvt.id, type: 'E', val: val, desc: title, confirmed: false });
                             this.save();
                             this.calendar.addEvent(newEvent);
                         }
@@ -127,8 +124,7 @@
                 const idx = this.db.events.findIndex(e => e.id === fcEvent.id);
                 if(idx !== -1) {
                     this.db.events[idx].start = fcEvent.startStr;
-                    // CORRIGIDO: Trata o caso onde endStr fica vazio se for reduzido para apenas 1 dia
-                    this.db.events[idx].end = fcEvent.endStr || null;
+                    this.db.events[idx].end = fcEvent.endStr;
                     this.save();
                 }
             },
