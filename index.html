@@ -27,10 +27,7 @@
 
         .btn-orange { background: var(--brand); color: white; border: none; padding: 12px 24px; border-radius: 16px; font-weight: 800; cursor: pointer; }
         
-        #calendar-main { background: #000; border-radius: 20px; padding: 10px; border: 1px solid var(--border); color: white; min-height: 600px; }
-        
-        /* Ajuste para facilitar o redimensionamento visual */
-        .fc-event { cursor: move; }
+        #calendar-main { background: #000; border-radius: 20px; padding: 10px; border: 1px solid var(--border); color: white; }
     </style>
 </head>
 <body>
@@ -56,18 +53,11 @@
                 <div class="glass-card"><h4>Agendado</h4><h2 id="fin-age" style="color: var(--brand);">€ 0.00</h2></div>
                 <div class="glass-card"><h4>Previsões</h4><h2 id="fin-prev" style="color: #3b82f6;">€ 0.00</h2></div>
             </div>
-
-            <div class="glass-card" style="border: 1px dashed var(--brand); background: rgba(249,115,22,0.02);">
-                <h4 style="color: var(--brand); font-size: 11px;">🧠 CONSELHO DE ALOCAÇÃO</h4>
-                <p id="gemini-insight" style="margin-top: 10px; font-size: 14px; color: #a1a1aa;">A analisar contas...</p>
-            </div>
-
             <div style="margin: 20px 0; display: flex; gap: 10px;">
                 <button onclick="App.addTransacao('E')" class="btn-orange">Entrada</button>
                 <button onclick="App.addTransacao('P')" class="btn-orange" style="background: #3b82f6;">Previsão</button>
                 <button onclick="App.addTransacao('S')" class="btn-orange" style="background: #ef4444;">Saída</button>
             </div>
-
             <div id="fin-lista" class="glass-card" style="padding: 0;"></div>
         </section>
     </main>
@@ -95,39 +85,21 @@
                     locale: 'pt-pt',
                     editable: true,
                     selectable: true,
-                    droppable: true,
                     events: this.db.events,
-                    
-                    // Sincroniza quando arrasta o evento para outro dia
-                    eventDrop: (info) => this.syncEvent(info.event),
-                    
-                    // Sincroniza quando estica o evento para múltiplos dias
-                    eventResize: (info) => this.syncEvent(info.event),
-                    
                     select: (info) => {
                         const title = prompt("Serviço e Valor (€):");
                         if(title) {
                             const valMatch = title.match(/\d+/);
                             const val = valMatch ? parseFloat(valMatch[0]) : 0;
-                            
-                            // Correção: Garantir que o nome da variável é consistente
-                            const newEvent = {
+                            const newEvt = {
                                 id: Date.now().toString(),
                                 title: title,
                                 start: info.startStr,
                                 end: info.endStr,
                                 allDay: info.allDay
                             };
-                            
                             this.db.events.push(newEvent);
-                            this.db.transacoes.push({ 
-                                id: 't' + newEvent.id, 
-                                type: 'E', 
-                                val: val, 
-                                desc: title, 
-                                confirmed: false 
-                            });
-                            
+                            this.db.transacoes.push({ id: 't'+newEvt.id, type: 'E', val: val, desc: title, confirmed: false });
                             this.save();
                             this.calendar.addEvent(newEvent);
                         }
@@ -136,54 +108,25 @@
                 this.calendar.render();
             },
 
-            syncEvent(fcEvent) {
-                const idx = this.db.events.findIndex(e => e.id === fcEvent.id);
-                if(idx !== -1) {
-                    // Atualiza as datas no banco de dados local
-                    this.db.events[idx].start = fcEvent.startStr;
-                    // O FullCalendar usa exclusividade na data final, garantimos que grava o novo fim
-                    this.db.events[idx].end = fcEvent.endStr;
-                    this.save();
-                }
-            },
-
             addTransacao(tipo) {
                 const desc = prompt("Descrição:");
                 const val = parseFloat(prompt("Valor (€):") || 0);
                 if(desc && val) {
-                    this.db.transacoes.push({ 
-                        id: Date.now(), 
-                        type: tipo, 
-                        val: val, 
-                        desc: desc, 
-                        confirmed: tipo !== 'P' 
-                    });
+                    this.db.transacoes.push({ id: Date.now(), type: tipo, val: val, desc: desc, confirmed: tipo !== 'P' });
                     this.save();
                 }
             },
 
             renderFinanceiro() {
                 let real = 0, age = 0, prev = 0;
-                
                 this.db.transacoes.forEach(t => {
                     if(t.type === 'E') t.confirmed ? real += t.val : age += t.val;
                     if(t.type === 'S') real -= t.val;
                     if(t.type === 'P') prev += t.val;
                 });
-
                 document.getElementById('fin-real').innerText = `€ ${real.toFixed(2)}`;
                 document.getElementById('fin-age').innerText = `€ ${age.toFixed(2)}`;
                 document.getElementById('fin-prev').innerText = `€ ${prev.toFixed(2)}`;
-
-                const insight = document.getElementById('gemini-insight');
-                const projecao = real + age;
-
-                if (projecao < prev) {
-                    insight.innerHTML = `⚠️ <b style="color:#ef4444">Aviso:</b> Tens <b>€${prev.toFixed(2)}</b> em contas para pagar, mas só <b>€${projecao.toFixed(2)}</b> garantidos.`;
-                } else {
-                    const sobra = projecao - prev;
-                    insight.innerHTML = `✅ <b style="color:#22c55e">Bom Trabalho:</b> Após as contas, terás <b>€${sobra.toFixed(2)}</b> livres.`;
-                }
 
                 document.getElementById('fin-lista').innerHTML = this.db.transacoes.slice().reverse().map(t => `
                     <div style="padding: 15px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; opacity: ${t.confirmed ? 1 : 0.6}">
