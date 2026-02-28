@@ -53,11 +53,18 @@
                 <div class="glass-card"><h4>Agendado</h4><h2 id="fin-age" style="color: var(--brand);">€ 0.00</h2></div>
                 <div class="glass-card"><h4>Previsões</h4><h2 id="fin-prev" style="color: #3b82f6;">€ 0.00</h2></div>
             </div>
+
+            <div class="glass-card" style="border: 1px dashed var(--brand); background: rgba(249,115,22,0.02);">
+                <h4 style="color: var(--brand); font-size: 11px;">🧠 CONSELHO DE ALOCAÇÃO</h4>
+                <p id="gemini-insight" style="margin-top: 10px; font-size: 14px; color: #a1a1aa;">A analisar contas...</p>
+            </div>
+
             <div style="margin: 20px 0; display: flex; gap: 10px;">
                 <button onclick="App.addTransacao('E')" class="btn-orange">Entrada</button>
                 <button onclick="App.addTransacao('P')" class="btn-orange" style="background: #3b82f6;">Previsão</button>
                 <button onclick="App.addTransacao('S')" class="btn-orange" style="background: #ef4444;">Saída</button>
             </div>
+
             <div id="fin-lista" class="glass-card" style="padding: 0;"></div>
         </section>
     </main>
@@ -87,7 +94,7 @@
                     selectable: true,
                     events: this.db.events,
                     
-                    // CORREÇÃO AQUI: Garante que o arrasto e o esticar gravam na base de dados
+                    // Salva quando é arrastado ou redimensionado
                     eventDrop: (info) => this.syncEvent(info.event),
                     eventResize: (info) => this.syncEvent(info.event),
                     
@@ -96,15 +103,18 @@
                         if(title) {
                             const valMatch = title.match(/\d+/);
                             const val = valMatch ? parseFloat(valMatch[0]) : 0;
-                            const newEvt = {
+                            
+                            // CORRIGIDO: Nome da variável de 'newEvt' para 'newEvent'
+                            const newEvent = {
                                 id: Date.now().toString(),
                                 title: title,
                                 start: info.startStr,
-                                end: info.endStr,
+                                end: info.endStr, 
                                 allDay: info.allDay
                             };
+                            
                             this.db.events.push(newEvent);
-                            this.db.transacoes.push({ id: 't'+newEvt.id, type: 'E', val: val, desc: title, confirmed: false });
+                            this.db.transacoes.push({ id: 't'+newEvent.id, type: 'E', val: val, desc: title, confirmed: false });
                             this.save();
                             this.calendar.addEvent(newEvent);
                         }
@@ -113,12 +123,12 @@
                 this.calendar.render();
             },
 
-            // FUNÇÃO ADICIONADA: Sincroniza o calendário com o localStorage
             syncEvent(fcEvent) {
                 const idx = this.db.events.findIndex(e => e.id === fcEvent.id);
                 if(idx !== -1) {
                     this.db.events[idx].start = fcEvent.startStr;
-                    this.db.events[idx].end = fcEvent.endStr;
+                    // CORRIGIDO: Trata o caso onde endStr fica vazio se for reduzido para apenas 1 dia
+                    this.db.events[idx].end = fcEvent.endStr || null;
                     this.save();
                 }
             },
@@ -134,14 +144,27 @@
 
             renderFinanceiro() {
                 let real = 0, age = 0, prev = 0;
+                
                 this.db.transacoes.forEach(t => {
                     if(t.type === 'E') t.confirmed ? real += t.val : age += t.val;
                     if(t.type === 'S') real -= t.val;
                     if(t.type === 'P') prev += t.val;
                 });
+
                 document.getElementById('fin-real').innerText = `€ ${real.toFixed(2)}`;
                 document.getElementById('fin-age').innerText = `€ ${age.toFixed(2)}`;
                 document.getElementById('fin-prev').innerText = `€ ${prev.toFixed(2)}`;
+
+                // ALOCAÇÃO INTELIGENTE
+                const insight = document.getElementById('gemini-insight');
+                const projecao = real + age;
+
+                if (projecao < prev) {
+                    insight.innerHTML = `⚠️ <b style="color:#ef4444">Aviso:</b> Tens <b>€${prev.toFixed(2)}</b> em contas para pagar, mas só <b>€${projecao.toFixed(2)}</b> garantidos. Precisas de mais agendamentos.`;
+                } else {
+                    const sobra = projecao - prev;
+                    insight.innerHTML = `✅ <b style="color:#22c55e">Bom Trabalho:</b> Após as contas, terás <b>€${sobra.toFixed(2)}</b> livres. Podes investir em material ou marketing.`;
+                }
 
                 document.getElementById('fin-lista').innerHTML = this.db.transacoes.slice().reverse().map(t => `
                     <div style="padding: 15px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; opacity: ${t.confirmed ? 1 : 0.6}">
