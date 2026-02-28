@@ -3,173 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>POINT.OS | BASE COMPLETA</title>
+    <title>POINT.OS | BASE</title>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        
-        :root { 
-            --brand: #f97316; 
-            --bg: #030303; 
-            --surface: #0a0a0a; 
-            --border: #1a1a1a; 
-        }
+        :root { --brand: #f97316; --bg: #030303; --surface: #0a0a0a; --border: #1a1a1a; }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        body { background-color: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: #e5e7eb; display: flex; min-height: 100vh; }
         
-        body { 
-            background-color: var(--bg); 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            color: #e5e7eb; 
-            display: flex; 
-            min-height: 100vh; 
-            overflow-x: hidden;
-        }
+        .sidebar { width: 240px; border-right: 1px solid var(--border); padding: 40px 0; flex-shrink: 0; }
+        .viewport { flex-grow: 1; padding: 40px; }
         
-        /* Sidebar Intacta */
-        .sidebar { 
-            width: 240px; 
-            border-right: 1px solid var(--border); 
-            padding: 40px 0; 
-            flex-shrink: 0; 
-            height: 100vh;
-            position: sticky;
-            top: 0;
-        }
-        
-        .viewport { 
-            flex-grow: 1; 
-            padding: 40px; 
-        }
-        
-        .nav-item { 
-            display: flex; 
-            align-items: center; 
-            padding: 14px 20px; 
-            color: #52525b; 
-            cursor: pointer; 
-            font-size: 14px; 
-            font-weight: 600; 
-            transition: 0.2s;
-        }
-        
-        .nav-item.active { 
-            color: var(--brand); 
-            background: rgba(249, 115, 22, 0.05);
-            border-right: 2px solid var(--brand);
-        }
-        
-        .nav-item i { margin-right: 12px; font-size: 18px; }
+        .nav-item { display: flex; align-items: center; padding: 14px 20px; color: #52525b; cursor: pointer; font-size: 14px; font-weight: 600; }
+        .nav-item.active { color: var(--brand); }
+        .nav-item i { margin-right: 12px; }
 
-        /* Elementos de UI */
-        .glass-card { 
-            background: var(--surface); 
-            border: 1px solid var(--border); 
-            border-radius: 24px; 
-            padding: 24px; 
-            margin-bottom: 24px; 
-        }
-        
+        .glass-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 24px; margin-bottom: 24px; }
         .hidden { display: none !important; }
 
-        .btn-orange { 
-            background: var(--brand); 
-            color: white; 
-            border: none; 
-            padding: 12px 24px; 
-            border-radius: 16px; 
-            font-weight: 800; 
-            font-size: 12px;
-            text-transform: uppercase;
-            cursor: pointer; 
-            transition: 0.2s;
-        }
+        .btn-orange { background: var(--brand); color: white; border: none; padding: 12px 24px; border-radius: 16px; font-weight: 800; cursor: pointer; }
         
-        .btn-orange:active { transform: scale(0.98); }
-
-        /* Calendário */
-        #calendar-main { 
-            background: #000; 
-            border-radius: 20px; 
-            padding: 10px; 
-            border: 1px solid var(--border); 
-            color: white;
-            min-height: 600px;
-        }
-
-        .fc .fc-toolbar-title { font-size: 1.2em; font-weight: 800; }
-        .fc .fc-button-primary { background: var(--zinc-900); border: 1px solid var(--border); }
+        #calendar-main { background: #000; border-radius: 20px; padding: 10px; border: 1px solid var(--border); color: white; }
     </style>
 </head>
 <body>
 
     <aside class="sidebar">
-        <div style="padding: 0 40px; margin-bottom: 40px; font-size: 24px; font-weight: 900; letter-spacing: -1px;">
-            POINT<span style="color:var(--brand)">.</span>OS
-        </div>
+        <div style="padding: 0 40px; margin-bottom: 30px; font-size: 24px; font-weight: 900;">POINT.OS</div>
         <nav>
-            <div onclick="Nav.to('tab-dash', this)" class="nav-item active">
-                <i class="bi bi-calendar3"></i> Agenda
-            </div>
-            <div onclick="Nav.to('tab-fin', this)" class="nav-item">
-                <i class="bi bi-cash-stack"></i> Financeiro
-            </div>
+            <div onclick="Nav.to('tab-dash', this)" class="nav-item active"><i class="bi bi-calendar3"></i> Agenda</div>
+            <div onclick="Nav.to('tab-fin', this)" class="nav-item"><i class="bi bi-cash-stack"></i> Financeiro</div>
         </nav>
     </aside>
 
     <main class="viewport">
         <section id="tab-dash" class="tab-view">
-            <header style="margin-bottom: 24px;">
-                <h2 style="font-size: 24px; font-weight: 800;">Agenda de Serviços</h2>
-            </header>
             <div class="glass-card">
                 <div id="calendar-main"></div>
             </div>
         </section>
 
         <section id="tab-fin" class="tab-view hidden">
-            <header style="margin-bottom: 24px;">
-                <h2 style="font-size: 24px; font-weight: 800;">Gestão Financeira</h2>
-            </header>
-
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 20px;">
-                <div class="glass-card">
-                    <p style="font-size: 10px; color: #52525b; font-weight: 800; text-transform: uppercase;">Saldo Real</p>
-                    <h2 id="fin-real" style="font-size: 28px; margin-top: 8px;">€ 0.00</h2>
-                </div>
-                <div class="glass-card">
-                    <p style="font-size: 10px; color: #52525b; font-weight: 800; text-transform: uppercase;">Agendado</p>
-                    <h2 id="fin-age" style="font-size: 28px; margin-top: 8px; color: var(--brand);">€ 0.00</h2>
-                </div>
-                <div class="glass-card">
-                    <p style="font-size: 10px; color: #52525b; font-weight: 800; text-transform: uppercase;">Previsões</p>
-                    <h2 id="fin-prev" style="font-size: 28px; margin-top: 8px; color: #3b82f6;">€ 0.00</h2>
-                </div>
+                <div class="glass-card"><h4>Saldo Real</h4><h2 id="fin-real">€ 0.00</h2></div>
+                <div class="glass-card"><h4>Agendado</h4><h2 id="fin-age" style="color: var(--brand);">€ 0.00</h2></div>
+                <div class="glass-card"><h4>Previsões</h4><h2 id="fin-prev" style="color: #3b82f6;">€ 0.00</h2></div>
             </div>
-
-            <div class="glass-card" style="border: 1px dashed var(--brand); background: rgba(249, 115, 22, 0.02);">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="bi bi-cpu" style="color: var(--brand);"></i>
-                    <h4 style="color: var(--brand); font-size: 12px; font-weight: 800; text-transform: uppercase;">Alocação Inteligente Gemini</h4>
-                </div>
-                <p id="gemini-insight" style="margin-top: 12px; font-size: 14px; color: #a1a1aa; line-height: 1.6;">A analisar fluxo de caixa e previsões...</p>
+            <div style="margin: 20px 0; display: flex; gap: 10px;">
+                <button onclick="App.addTransacao('E')" class="btn-orange">Entrada</button>
+                <button onclick="App.addTransacao('P')" class="btn-orange" style="background: #3b82f6;">Previsão</button>
+                <button onclick="App.addTransacao('S')" class="btn-orange" style="background: #ef4444;">Saída</button>
             </div>
-
-            <div style="margin: 24px 0; display: flex; gap: 12px;">
-                <button onclick="App.addTransacao('E')" class="btn-orange">Nova Entrada</button>
-                <button onclick="App.addTransacao('P')" class="btn-orange" style="background: #3b82f6;">Nova Previsão</button>
-                <button onclick="App.addTransacao('S')" class="btn-orange" style="background: #ef4444;">Nova Saída</button>
-            </div>
-
-            <div class="glass-card" style="padding: 0; overflow: hidden;">
-                <div style="padding: 20px; border-bottom: 1px solid var(--border); font-weight: 800; font-size: 12px; color: #52525b; text-transform: uppercase;">
-                    Histórico de Transações
-                </div>
-                <div id="fin-lista"></div>
-            </div>
+            <div id="fin-lista" class="glass-card" style="padding: 0;"></div>
         </section>
     </main>
 
@@ -196,14 +85,9 @@
                     locale: 'pt-pt',
                     editable: true,
                     selectable: true,
-                    headerToolbar: {
-                        left: 'prev,next today',
-                        center: 'title',
-                        right: 'dayGridMonth,listWeek'
-                    },
                     events: this.db.events,
                     
-                    // GATILHOS DE ARRASTO E REDIMENSIONAMENTO
+                    // CORREÇÃO AQUI: Garante que o arrasto e o esticar gravam na base de dados
                     eventDrop: (info) => this.syncEvent(info.event),
                     eventResize: (info) => this.syncEvent(info.event),
                     
@@ -216,19 +100,11 @@
                                 id: Date.now().toString(),
                                 title: title,
                                 start: info.startStr,
-                                end: info.endStr, // Grava a data de fim do arrasto
-                                allDay: info.allDay,
-                                backgroundColor: '#f97316',
-                                borderColor: '#f97316'
+                                end: info.endStr,
+                                allDay: info.allDay
                             };
                             this.db.events.push(newEvent);
-                            this.db.transacoes.push({ 
-                                id: 't'+newEvt.id, 
-                                type: 'E', 
-                                val: val, 
-                                desc: title, 
-                                confirmed: false 
-                            });
+                            this.db.transacoes.push({ id: 't'+newEvt.id, type: 'E', val: val, desc: title, confirmed: false });
                             this.save();
                             this.calendar.addEvent(newEvent);
                         }
@@ -237,7 +113,7 @@
                 this.calendar.render();
             },
 
-            // FUNÇÃO VITAL: Sincroniza o movimento do calendário com a base de dados
+            // FUNÇÃO ADICIONADA: Sincroniza o calendário com o localStorage
             syncEvent(fcEvent) {
                 const idx = this.db.events.findIndex(e => e.id === fcEvent.id);
                 if(idx !== -1) {
@@ -251,51 +127,26 @@
                 const desc = prompt("Descrição:");
                 const val = parseFloat(prompt("Valor (€):") || 0);
                 if(desc && val) {
-                    this.db.transacoes.push({ 
-                        id: Date.now(), 
-                        type: tipo, 
-                        val: val, 
-                        desc: desc, 
-                        confirmed: tipo !== 'P' 
-                    });
+                    this.db.transacoes.push({ id: Date.now(), type: tipo, val: val, desc: desc, confirmed: tipo !== 'P' });
                     this.save();
                 }
             },
 
             renderFinanceiro() {
                 let real = 0, age = 0, prev = 0;
-                
                 this.db.transacoes.forEach(t => {
                     if(t.type === 'E') t.confirmed ? real += t.val : age += t.val;
                     if(t.type === 'S') real -= t.val;
                     if(t.type === 'P') prev += t.val;
                 });
-
                 document.getElementById('fin-real').innerText = `€ ${real.toFixed(2)}`;
                 document.getElementById('fin-age').innerText = `€ ${age.toFixed(2)}`;
                 document.getElementById('fin-prev').innerText = `€ ${prev.toFixed(2)}`;
 
-                // Lógica de Alocação Gemini
-                const insight = document.getElementById('gemini-insight');
-                const projecao = real + age;
-
-                if (projecao < prev) {
-                    insight.innerHTML = `⚠️ <b style="color:#ef4444">Aviso de Liquidez:</b> Tens <b>€${prev.toFixed(2)}</b> em contas previstas, mas o total disponível (Real + Agendado) é apenas <b>€${projecao.toFixed(2)}</b>. Considera antecipar recebimentos.`;
-                } else {
-                    const sobra = projecao - prev;
-                    insight.innerHTML = `✅ <b style="color:#22c55e">Saúde Financeira:</b> Após as previsões, terás <b>€${sobra.toFixed(2)}</b> livres. Recomendo alocar <b>€${(sobra * 0.4).toFixed(2)}</b> (40%) para expansão ou stock.`;
-                }
-
-                const lista = document.getElementById('fin-lista');
-                lista.innerHTML = this.db.transacoes.slice().reverse().map(t => `
-                    <div style="padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; opacity: ${t.confirmed ? 1 : 0.5}">
-                        <div>
-                            <span style="display: block; font-size: 14px; font-weight: 600;">${t.desc}</span>
-                            <small style="color: #52525b; font-size: 10px; text-transform: uppercase;">${t.confirmed ? 'Confirmado' : 'Previsto'}</small>
-                        </div>
-                        <b style="color:${t.type==='E'?'#22c55e':(t.type==='P'?'#3b82f6':'#ef4444')}; font-size: 14px;">
-                            ${t.type==='S' || t.type==='P' ? '-' : '+'} €${t.val.toFixed(2)}
-                        </b>
+                document.getElementById('fin-lista').innerHTML = this.db.transacoes.slice().reverse().map(t => `
+                    <div style="padding: 15px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; opacity: ${t.confirmed ? 1 : 0.6}">
+                        <span>${t.desc}</span>
+                        <b style="color:${t.type==='E'?'#22c55e':(t.type==='P'?'#3b82f6':'#ef4444')}">€${t.val.toFixed(2)}</b>
                     </div>
                 `).join('');
             }
@@ -307,7 +158,7 @@
                 document.getElementById(id).classList.remove('hidden');
                 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
                 el.classList.add('active');
-                if(id === 'tab-dash') setTimeout(() => App.calendar.render(), 100);
+                if(id === 'tab-dash') setTimeout(() => App.calendar.render(), 50);
             }
         };
 
