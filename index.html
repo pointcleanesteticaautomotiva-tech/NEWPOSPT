@@ -27,7 +27,10 @@
 
         .btn-orange { background: var(--brand); color: white; border: none; padding: 12px 24px; border-radius: 16px; font-weight: 800; cursor: pointer; }
         
-        #calendar-main { background: #000; border-radius: 20px; padding: 10px; border: 1px solid var(--border); color: white; }
+        #calendar-main { background: #000; border-radius: 20px; padding: 10px; border: 1px solid var(--border); color: white; min-height: 600px; }
+        
+        /* Ajuste para facilitar o redimensionamento visual */
+        .fc-event { cursor: move; }
     </style>
 </head>
 <body>
@@ -92,10 +95,13 @@
                     locale: 'pt-pt',
                     editable: true,
                     selectable: true,
+                    droppable: true,
                     events: this.db.events,
                     
-                    // CORREÇÃO PARA SALVAR ARRASTO E DURAÇÃO
+                    // Sincroniza quando arrasta o evento para outro dia
                     eventDrop: (info) => this.syncEvent(info.event),
+                    
+                    // Sincroniza quando estica o evento para múltiplos dias
                     eventResize: (info) => this.syncEvent(info.event),
                     
                     select: (info) => {
@@ -103,15 +109,25 @@
                         if(title) {
                             const valMatch = title.match(/\d+/);
                             const val = valMatch ? parseFloat(valMatch[0]) : 0;
-                            const newEvt = {
+                            
+                            // Correção: Garantir que o nome da variável é consistente
+                            const newEvent = {
                                 id: Date.now().toString(),
                                 title: title,
                                 start: info.startStr,
-                                end: info.endStr, // Salva o fim
+                                end: info.endStr,
                                 allDay: info.allDay
                             };
+                            
                             this.db.events.push(newEvent);
-                            this.db.transacoes.push({ id: 't'+newEvt.id, type: 'E', val: val, desc: title, confirmed: false });
+                            this.db.transacoes.push({ 
+                                id: 't' + newEvent.id, 
+                                type: 'E', 
+                                val: val, 
+                                desc: title, 
+                                confirmed: false 
+                            });
+                            
                             this.save();
                             this.calendar.addEvent(newEvent);
                         }
@@ -123,7 +139,9 @@
             syncEvent(fcEvent) {
                 const idx = this.db.events.findIndex(e => e.id === fcEvent.id);
                 if(idx !== -1) {
+                    // Atualiza as datas no banco de dados local
                     this.db.events[idx].start = fcEvent.startStr;
+                    // O FullCalendar usa exclusividade na data final, garantimos que grava o novo fim
                     this.db.events[idx].end = fcEvent.endStr;
                     this.save();
                 }
@@ -133,7 +151,13 @@
                 const desc = prompt("Descrição:");
                 const val = parseFloat(prompt("Valor (€):") || 0);
                 if(desc && val) {
-                    this.db.transacoes.push({ id: Date.now(), type: tipo, val: val, desc: desc, confirmed: tipo !== 'P' });
+                    this.db.transacoes.push({ 
+                        id: Date.now(), 
+                        type: tipo, 
+                        val: val, 
+                        desc: desc, 
+                        confirmed: tipo !== 'P' 
+                    });
                     this.save();
                 }
             },
@@ -151,15 +175,14 @@
                 document.getElementById('fin-age').innerText = `€ ${age.toFixed(2)}`;
                 document.getElementById('fin-prev').innerText = `€ ${prev.toFixed(2)}`;
 
-                // ALOCAÇÃO INTELIGENTE
                 const insight = document.getElementById('gemini-insight');
                 const projecao = real + age;
 
                 if (projecao < prev) {
-                    insight.innerHTML = `⚠️ <b style="color:#ef4444">Aviso:</b> Tens <b>€${prev.toFixed(2)}</b> em contas para pagar, mas só <b>€${projecao.toFixed(2)}</b> garantidos. Precisas de mais agendamentos.`;
+                    insight.innerHTML = `⚠️ <b style="color:#ef4444">Aviso:</b> Tens <b>€${prev.toFixed(2)}</b> em contas para pagar, mas só <b>€${projecao.toFixed(2)}</b> garantidos.`;
                 } else {
                     const sobra = projecao - prev;
-                    insight.innerHTML = `✅ <b style="color:#22c55e">Bom Trabalho:</b> Após as contas, terás <b>€${sobra.toFixed(2)}</b> livres. Podes investir em material ou marketing.`;
+                    insight.innerHTML = `✅ <b style="color:#22c55e">Bom Trabalho:</b> Após as contas, terás <b>€${sobra.toFixed(2)}</b> livres.`;
                 }
 
                 document.getElementById('fin-lista').innerHTML = this.db.transacoes.slice().reverse().map(t => `
