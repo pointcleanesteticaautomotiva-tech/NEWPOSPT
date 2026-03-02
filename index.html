@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>POINT.OS | BASE</title>
+    <title>POINT.OS | ORIGINAL</title>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -71,7 +71,14 @@
                     </div>
                     <div class="glass-card">
                         <h4>Status da Oficina</h4>
-                        <div id="oficina-status" style="margin-top: 15px;"></div>
+                        <div id="oficina-status" style="margin-top: 15px;">
+                            <div style="padding: 10px; background: #111; border-radius: 12px; margin-bottom: 10px;">
+                                <small>Ocupação</small>
+                                <div style="height: 4px; background: #222; border-radius: 2px; margin-top: 5px;">
+                                    <div style="width: 65%; height: 100%; background: var(--brand); border-radius: 2px;"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -84,9 +91,9 @@
                 <div class="glass-card"><h4>Previsões</h4><h2 id="fin-prev" class="blur-text" style="color: #3b82f6;">€ 0.00</h2></div>
             </div>
             <div style="margin: 20px 0; display: flex; gap: 10px;">
-                <button onclick="App.addTransacao('E')" class="btn-orange">Nova Entrada</button>
-                <button onclick="App.addTransacao('P')" class="btn-orange" style="background: #3b82f6;">Nova Previsão</button>
-                <button onclick="App.addTransacao('S')" class="btn-orange" style="background: #ef4444;">Nova Saída</button>
+                <button onclick="App.addTransacao('E')" class="btn-orange">Entrada</button>
+                <button onclick="App.addTransacao('P')" class="btn-orange" style="background: #3b82f6;">Previsão</button>
+                <button onclick="App.addTransacao('S')" class="btn-orange" style="background: #ef4444;">Saída</button>
             </div>
             <div id="fin-lista" class="glass-card" style="padding: 0;"></div>
         </section>
@@ -95,7 +102,7 @@
             <div class="glass-card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2>Stock de Peças</h2>
-                    <button onclick="App.addPeca()" class="btn-orange" style="padding: 8px 16px; font-size: 10px;">+ Peça</button>
+                    <button onclick="App.addPeca()" class="btn-orange" style="padding: 8px 16px; font-size: 10px;">+ Adicionar</button>
                 </div>
                 <div id="pecas-lista"></div>
             </div>
@@ -108,14 +115,14 @@
             currentView: 'detailing',
 
             init() {
-                const saved = localStorage.getItem('POINT_OS_PRO');
+                const saved = localStorage.getItem('POINT_OS_ORIGINAL_DATA');
                 if(saved) this.db = JSON.parse(saved);
                 this.initCalendar();
                 this.render();
             },
 
             save() {
-                localStorage.setItem('POINT_OS_PRO', JSON.stringify(this.db));
+                localStorage.setItem('POINT_OS_ORIGINAL_DATA', JSON.stringify(this.db));
                 this.render();
             },
 
@@ -133,6 +140,7 @@
                     selectable: true,
                     events: this.db.events,
                     
+                    // CORREÇÃO: Sincronização obrigatória para gravar mudanças
                     eventDrop: (info) => this.syncEvent(info.event),
                     eventResize: (info) => this.syncEvent(info.event),
                     
@@ -183,7 +191,7 @@
 
             addPeca() {
                 const nome = prompt("Nome da Peça:");
-                const qtd = prompt("Quantidade:");
+                const qtd = prompt("Qtd:");
                 if(nome) {
                     this.db.pecas.push({ id: Date.now(), nome, qtd });
                     this.save();
@@ -200,6 +208,7 @@
                 document.getElementById('fin-real').innerText = `€ ${real.toFixed(2)}`;
                 document.getElementById('fin-age').innerText = `€ ${age.toFixed(2)}`;
                 document.getElementById('fin-prev').innerText = `€ ${prev.toFixed(2)}`;
+
                 document.body.classList.toggle('privacy-on', this.db.privacy);
 
                 document.getElementById('fin-lista').innerHTML = this.db.transacoes.slice().reverse().map(t => `
@@ -210,15 +219,15 @@
 
                 document.getElementById('pecas-lista').innerHTML = this.db.pecas.map(p => `
                     <div style="padding: 10px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between;">
-                        <span>${p.nome}</span><span>Qtd: ${p.qtd}</span>
+                        <span>${p.nome}</span><span>${p.qtd} uni</span>
                     </div>
                 `).join('');
-                
+
                 document.getElementById('next-services').innerHTML = this.db.events.slice(-3).map(e => `
                     <div style="font-size:12px; margin-bottom:10px; padding-bottom:5px; border-bottom:1px solid #1a1a1a">
-                        ${e.title} <br> <small style="color:#52525b">${e.start}</small>
+                        ${e.title} <br> <small style="color:#52525b">${e.start.split('T')[0]}</small>
                     </div>
-                `).join('') || 'Sem serviços';
+                `).join('') || 'Sem agendamentos';
             },
 
             togglePrivacy() { this.db.privacy = !this.db.privacy; this.save(); },
