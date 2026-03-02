@@ -18,7 +18,6 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body { background-color: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: #e5e7eb; display: flex; min-height: 100vh; }
         
-        /* SIDEBAR MANTIDA LATERAL */
         .sidebar { width: 240px; background: #000; border-right: 1px solid var(--border); height: 100vh; position: sticky; top: 0; z-index: 50; padding: 40px 0; flex-shrink: 0; }
         .viewport { flex-grow: 1; padding: 40px; width: calc(100% - 240px); }
         
@@ -41,7 +40,6 @@
         .status-aceite { background: #1e3a8a; color: #60a5fa; border-color: #1e40af; }
         .status-encomendada { background: #4c1d95; color: #a78bfa; border-color: #5b21b6; }
 
-        /* CALENDÁRIO COM ESPAÇAMENTO */
         #calendar-main { background: #000; border-radius: 20px; padding: 15px; min-height: 600px; border: 1px solid var(--border); }
         .fc .fc-button { background: #111 !important; border: 1px solid #1a1a1a !important; color: white !important; font-size: 9px !important; font-weight: 800 !important; text-transform: uppercase; }
         .fc .fc-button-active { background: var(--brand) !important; border-color: var(--brand) !important; }
@@ -53,13 +51,11 @@
         
         .blur-value { filter: blur(12px) !important; transition: 0.3s; }
 
-        /* RESPONSIVIDADE PARA IPHONE SEM PERDER O DESIGN LATERAL */
         @media (max-width: 1024px) { 
             body { flex-direction: column; }
             .sidebar { width: 100%; height: auto; position: relative; padding: 20px 0; border-right: none; border-bottom: 1px solid var(--border); }
             .viewport { width: 100%; padding: 20px; }
             .grid-12 { display: block; }
-            .glass-card { margin-bottom: 20px; }
         }
     </style>
 </head>
@@ -265,14 +261,11 @@
                 window.calendar = new FullCalendar.Calendar(document.getElementById('calendar-main'), {
                     initialView: 'dayGridMonth', locale: 'pt-pt',
                     editable: true, eventLongPressDelay: 600,
-                    headerToolbar: { 
-                        left: 'prev,next today', 
-                        center: 'title', 
-                        right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek' 
-                    },
+                    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek' },
                     selectable: true, 
                     select: (i) => { const t = prompt("Viatura:"); if(t) App.processBooking(t, i.startStr); },
                     eventClick: (i) => App.editBooking(i.event),
+                    // CORREÇÃO: Grava a nova data no banco de dados ao arrastar
                     eventDrop: (info) => {
                         const idx = App.db.events.findIndex(e => e.id === info.event.id);
                         if(idx !== -1) {
