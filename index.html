@@ -73,6 +73,15 @@
                         <h4 style="font-size: 13px; color: #52525b; margin-bottom: 20px;">PRÓXIMOS SERVIÇOS</h4>
                         <div id="dash-next"></div>
                     </div>
+                    
+                    <div class="glass-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h4 style="font-size: 13px; color: #52525b;">PEÇAS & STATUS</h4>
+                            <button onclick="App.addPeca()" style="background:none; border:none; color:var(--brand); cursor:pointer"><i class="bi bi-plus-circle"></i></button>
+                        </div>
+                        <div id="dash-pecas"></div>
+                    </div>
+
                     <div class="glass-card">
                         <h4 style="font-size: 13px; color: #52525b; margin-bottom: 20px;">STATUS OFICINA</h4>
                         <div id="dash-stats">
@@ -106,11 +115,8 @@
 
         <section id="tab-pecas" class="tab-view hidden">
             <div class="glass-card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                    <h2>Peças & Encomendas</h2>
-                    <button onclick="App.addPeca()" class="btn-orange">+ Adicionar</button>
-                </div>
-                <div id="pecas-lista"></div>
+                <h2>Inventário Completo</h2>
+                <div id="pecas-lista-full" style="margin-top:20px"></div>
             </div>
         </section>
     </main>
@@ -121,14 +127,14 @@
             currentView: 'detailing',
 
             init() {
-                const saved = localStorage.getItem('POINT_OS_FULL');
+                const saved = localStorage.getItem('POINT_OS_FINAL');
                 if(saved) this.db = JSON.parse(saved);
                 this.initCalendar();
                 this.render();
             },
 
             save() {
-                localStorage.setItem('POINT_OS_FULL', JSON.stringify(this.db));
+                localStorage.setItem('POINT_OS_FINAL', JSON.stringify(this.db));
                 this.render();
             },
 
@@ -141,10 +147,8 @@
                     editable: true,
                     selectable: true,
                     events: this.db.events,
-                    
                     eventDrop: (info) => this.syncEvent(info.event),
                     eventResize: (info) => this.syncEvent(info.event),
-                    
                     select: (info) => {
                         const title = prompt("Viatura / Serviço:");
                         if(title) {
@@ -229,12 +233,15 @@
                     { t: 'Entregue', c: 's-done' }
                 ];
 
-                document.getElementById('pecas-lista').innerHTML = this.db.pecas.map(p => `
-                    <div style="padding: 16px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; align-items: center;">
+                const pecasHtml = this.db.pecas.slice(-5).reverse().map(p => `
+                    <div style="padding: 10px 0; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; align-items: center; font-size:12px">
                         <span>${p.nome}</span>
-                        <span onclick="App.togglePecaStatus(${p.id})" class="status-badge ${sData[p.status].c}">${sData[p.status].t}</span>
+                        <span onclick="App.togglePecaStatus(${p.id})" class="status-badge ${sData[p.status].c}" style="padding: 4px 8px; font-size:9px">${sData[p.status].t}</span>
                     </div>
-                `).join('');
+                `).join('') || 'Sem peças';
+
+                document.getElementById('dash-pecas').innerHTML = pecasHtml;
+                document.getElementById('pecas-lista-full').innerHTML = pecasHtml;
 
                 document.getElementById('dash-next').innerHTML = this.db.events.slice(-3).map(e => `
                     <div style="padding: 12px 0; border-bottom: 1px solid #1a1a1a;">
