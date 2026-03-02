@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>POINT.OS | ORIGINAL SYSTEM</title>
+    <title>POINT.OS | SYSTEM</title>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -15,20 +15,20 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body { background-color: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: #e5e7eb; display: flex; min-height: 100vh; }
         
-        .sidebar { width: 260px; border-right: 1px solid var(--border); padding: 40px 0; flex-shrink: 0; }
+        .sidebar { width: 260px; border-right: 1px solid var(--border); padding: 40px 0; flex-shrink: 0; position: relative; }
         .viewport { flex-grow: 1; padding: 40px; }
         
         .nav-item { display: flex; align-items: center; padding: 16px 24px; color: #52525b; cursor: pointer; font-size: 14px; font-weight: 600; }
         .nav-item.active { color: var(--brand); background: rgba(249, 115, 22, 0.05); }
         .nav-item i { margin-right: 14px; }
 
-        .glass-card { background: var(--surface); border: 1px solid var(--border); border-radius: 28px; padding: 28px; margin-bottom: 24px; }
+        .glass-card { background: var(--surface); border: 1px solid var(--border); border-radius: 28px; padding: 24px; margin-bottom: 24px; }
         .hidden { display: none !important; }
 
-        .btn-orange { background: var(--brand); color: white; border: none; padding: 14px 28px; border-radius: 18px; font-weight: 800; cursor: pointer; }
+        .btn-orange { background: var(--brand); color: white; border: none; padding: 12px 24px; border-radius: 16px; font-weight: 800; cursor: pointer; }
         .btn-zinc { background: #111; color: white; border: 1px solid #222; padding: 10px 20px; border-radius: 14px; font-size: 11px; cursor: pointer; }
         
-        .status-badge { padding: 6px 14px; border-radius: 12px; font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .status-badge { padding: 4px 10px; border-radius: 10px; font-size: 9px; font-weight: 800; cursor: pointer; }
         .s-pending { background: rgba(249, 115, 22, 0.1); color: var(--brand); }
         .s-ordered { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
         .s-done { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
@@ -58,7 +58,7 @@
 
     <main class="viewport">
         <section id="tab-dash" class="tab-view">
-            <div style="display: grid; grid-template-columns: 2.5fr 1fr; gap: 30px;">
+            <div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 24px;">
                 <div>
                     <div class="cal-selector">
                         <div id="btn-det" onclick="App.switchView('detailing')" class="cal-btn active">Detailing</div>
@@ -70,42 +70,33 @@
                 </div>
                 <div>
                     <div class="glass-card">
-                        <h4 style="font-size: 13px; color: #52525b; margin-bottom: 20px;">PRÓXIMOS SERVIÇOS</h4>
+                        <h4 style="font-size: 12px; color: #52525b; margin-bottom: 15px;">VALOR AGENDADO</h4>
+                        <h2 id="dash-fin-val" class="blur-text" style="color: var(--brand); font-size: 28px;">€ 0.00</h2>
+                    </div>
+
+                    <div class="glass-card">
+                        <h4 style="font-size: 12px; color: #52525b; margin-bottom: 15px;">PRÓXIMOS SERVIÇOS</h4>
                         <div id="dash-next"></div>
                     </div>
                     
                     <div class="glass-card">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                            <h4 style="font-size: 13px; color: #52525b;">PEÇAS & STATUS</h4>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                            <h4 style="font-size: 12px; color: #52525b;">PEÇAS</h4>
                             <button onclick="App.addPeca()" style="background:none; border:none; color:var(--brand); cursor:pointer"><i class="bi bi-plus-circle"></i></button>
                         </div>
                         <div id="dash-pecas"></div>
-                    </div>
-
-                    <div class="glass-card">
-                        <h4 style="font-size: 13px; color: #52525b; margin-bottom: 20px;">STATUS OFICINA</h4>
-                        <div id="dash-stats">
-                            <div style="padding: 15px; background: #000; border: 1px solid #1a1a1a; border-radius: 16px;">
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                    <small>Ocupação</small><small>75%</small>
-                                </div>
-                                <div style="height: 6px; background: #1a1a1a; border-radius: 3px;">
-                                    <div style="width: 75%; height: 100%; background: var(--brand); border-radius: 3px;"></div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
         <section id="tab-fin" class="tab-view hidden">
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 30px;">
-                <div class="glass-card"><h4>Saldo Real</h4><h2 id="fin-real" class="blur-text" style="font-size: 32px;">€ 0.00</h2></div>
-                <div class="glass-card"><h4>Agendado</h4><h2 id="fin-age" class="blur-text" style="color: var(--brand); font-size: 32px;">€ 0.00</h2></div>
-                <div class="glass-card"><h4>Previsões</h4><h2 id="fin-prev" class="blur-text" style="color: #3b82f6; font-size: 32px;">€ 0.00</h2></div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px;">
+                <div class="glass-card"><h4>Saldo Real</h4><h2 id="fin-real" class="blur-text">€ 0.00</h2></div>
+                <div class="glass-card"><h4>Agendado</h4><h2 id="fin-age" class="blur-text" style="color: var(--brand);">€ 0.00</h2></div>
+                <div class="glass-card"><h4>Previsões</h4><h2 id="fin-prev" class="blur-text" style="color: #3b82f6;">€ 0.00</h2></div>
             </div>
-            <div style="display: flex; gap: 12px; margin-bottom: 30px;">
+            <div style="display: flex; gap: 10px; margin-bottom: 24px;">
                 <button onclick="App.addTransacao('E')" class="btn-orange">Entrada</button>
                 <button onclick="App.addTransacao('P')" class="btn-orange" style="background: #3b82f6;">Previsão</button>
                 <button onclick="App.addTransacao('S')" class="btn-orange" style="background: #ef4444;">Saída</button>
@@ -115,7 +106,7 @@
 
         <section id="tab-pecas" class="tab-view hidden">
             <div class="glass-card">
-                <h2>Inventário Completo</h2>
+                <h2>Inventário de Peças</h2>
                 <div id="pecas-lista-full" style="margin-top:20px"></div>
             </div>
         </section>
@@ -127,14 +118,14 @@
             currentView: 'detailing',
 
             init() {
-                const saved = localStorage.getItem('POINT_OS_FINAL');
+                const saved = localStorage.getItem('POINT_OS_STORAGE_V1');
                 if(saved) this.db = JSON.parse(saved);
                 this.initCalendar();
                 this.render();
             },
 
             save() {
-                localStorage.setItem('POINT_OS_FINAL', JSON.stringify(this.db));
+                localStorage.setItem('POINT_OS_STORAGE_V1', JSON.stringify(this.db));
                 this.render();
             },
 
@@ -215,6 +206,9 @@
                     if(t.type === 'S') real -= t.val;
                     if(t.type === 'P') prev += t.val;
                 });
+                
+                // Atualiza Dashboard e Financeiro
+                document.getElementById('dash-fin-val').innerText = `€ ${age.toFixed(2)}`;
                 document.getElementById('fin-real').innerText = `€ ${real.toFixed(2)}`;
                 document.getElementById('fin-age').innerText = `€ ${age.toFixed(2)}`;
                 document.getElementById('fin-prev').innerText = `€ ${prev.toFixed(2)}`;
@@ -222,30 +216,34 @@
                 document.body.classList.toggle('privacy-on', this.db.privacy);
 
                 document.getElementById('fin-lista').innerHTML = this.db.transacoes.slice().reverse().map(t => `
-                    <div style="padding: 20px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between;">
+                    <div style="padding: 15px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between;">
                         <span>${t.desc}</span><b>€ ${t.val.toFixed(2)}</b>
                     </div>
                 `).join('');
 
                 const sData = [
                     { t: 'Pendente', c: 's-pending' },
-                    { t: 'Encomendado', c: 's-ordered' },
+                    { t: 'Encomenda', c: 's-ordered' },
                     { t: 'Entregue', c: 's-done' }
                 ];
 
-                const pecasHtml = this.db.pecas.slice(-5).reverse().map(p => `
-                    <div style="padding: 10px 0; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; align-items: center; font-size:12px">
+                const pecasHtml = this.db.pecas.slice(-4).reverse().map(p => `
+                    <div style="padding: 8px 0; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; align-items: center; font-size:11px">
                         <span>${p.nome}</span>
-                        <span onclick="App.togglePecaStatus(${p.id})" class="status-badge ${sData[p.status].c}" style="padding: 4px 8px; font-size:9px">${sData[p.status].t}</span>
+                        <span onclick="App.togglePecaStatus(${p.id})" class="status-badge ${sData[p.status].c}">${sData[p.status].t}</span>
                     </div>
-                `).join('') || 'Sem peças';
+                `).join('');
 
                 document.getElementById('dash-pecas').innerHTML = pecasHtml;
-                document.getElementById('pecas-lista-full').innerHTML = pecasHtml;
+                document.getElementById('pecas-lista-full').innerHTML = this.db.pecas.map(p => `
+                    <div style="padding: 12px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between;">
+                        <span>${p.nome}</span><span class="status-badge ${sData[p.status].c}">${sData[p.status].t}</span>
+                    </div>
+                `).join('');
 
                 document.getElementById('dash-next').innerHTML = this.db.events.slice(-3).map(e => `
-                    <div style="padding: 12px 0; border-bottom: 1px solid #1a1a1a;">
-                        <p style="font-size:13px; font-weight:600">${e.title}</p>
+                    <div style="padding: 10px 0; border-bottom: 1px solid #1a1a1a;">
+                        <p style="font-size:12px; font-weight:600">${e.title}</p>
                         <small style="color:#52525b">${e.start.split('T')[0]}</small>
                     </div>
                 `).join('') || 'Sem agendamentos';
